@@ -12,6 +12,7 @@ from server.apps.accounts.accounts_interfaces import (
     UserCredentialTupleType,
     UserRegistrationReturnType,
     UserRegistrationError,
+    UserLoginType,
 )
 
 
@@ -41,9 +42,14 @@ class AccountsLogicDjango(AccountsLogicInterface):
                 return UserRegistrationError(email="has already been taken")
 
     @classmethod
-    def login_with_password(
-        cls, attrs: Mapping[str, str]
-    ) -> UserCredentialTupleType:  # noqa
-        credential = Credential.objects.get(user__email=attrs["email"])
-        check_password(attrs["password"], credential.token)
-        return cast(UserCredentialTupleType, (credential.user, credential))
+    def login_with_password(cls, attrs: Mapping[str, str]) -> UserLoginType:
+        try:
+            credential = Credential.objects.get(user__email=attrs["email"])
+
+            if check_password(attrs["password"], credential.token):
+                return cast(
+                    UserCredentialTupleType, (credential.user, credential)
+                )  # noqa
+            return None
+        except Credential.DoesNotExist:
+            return None

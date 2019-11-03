@@ -3,7 +3,7 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Mapping, Tuple, Union, NamedTuple
+from typing import Mapping, Tuple, Union, NamedTuple, Optional
 
 from typing_extensions import Protocol
 
@@ -37,6 +37,8 @@ UserRegistrationReturnType = Union[
     UserCredentialTupleType, UserRegistrationError
 ]  # noqa
 
+UserLoginType = Optional[UserCredentialTupleType]
+
 
 class AccountsLogicInterface(metaclass=ABCMeta):
     @classmethod
@@ -48,10 +50,9 @@ class AccountsLogicInterface(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def login_with_password(
-        cls, attrs: Mapping[str, str]
-    ) -> UserCredentialTupleType:  # noqa
+    def login_with_password(cls, attrs: Mapping[str, str]) -> UserLoginType:
         pass
 
 
 ATTRIBUTE_NOT_UNIQUE_ERROR_MESSAGE = "has already been taken"
+USER_LOGIN_ERROR_MESSAGE = "Invalid email/password"

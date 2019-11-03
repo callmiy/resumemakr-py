@@ -14,6 +14,20 @@ from graphene.test import Client
 from server.apps.graphql_schema import graphql_schema
 
 
+user_fragment_name = "UserFragment"
+
+user_fragment = f"""
+      fragment {user_fragment_name} on User {{
+            id
+            name
+            email
+            jwt
+            insertedAt
+            updatedAt
+      }}
+    """
+
+
 @pytest.fixture(autouse=True)
 def _media_root(settings, tmpdir_factory):
     """Forces django to save media files into temp folder."""
@@ -43,18 +57,6 @@ def graphql_client():
 
 @pytest.fixture()
 def user_registration_query():
-    user_fragment_name = "UserFragment"
-
-    user_fragment = f"""
-      fragment {user_fragment_name} on User {{
-        id
-        name
-        email
-        jwt
-        insertedAt
-        updatedAt
-      }}
-    """
 
     return f"""
         mutation RegisterUser($input: RegistrationInput!) {{
@@ -68,6 +70,29 @@ def user_registration_query():
                 }}
             }}
 
+        }}
+
+        {user_fragment}
+    """
+
+
+@pytest.fixture()
+def login_query():
+    return f"""
+        mutation LoginUser($input: LoginInput!) {{
+            login(input: $input) {{
+                __typename
+
+                ... on UserSuccess {{
+                    user {{
+                        ...{user_fragment_name}
+                    }}
+                }}
+
+                ... on LoginUserError {{
+                    error
+                }}
+            }}
         }}
 
         {user_fragment}

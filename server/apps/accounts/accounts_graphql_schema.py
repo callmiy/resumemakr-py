@@ -3,7 +3,10 @@
 import graphene
 from graphene_django.types import ObjectType
 
-from server.apps.accounts.accounts_interfaces import UserRegistrationError
+from server.apps.accounts.accounts_interfaces import (
+    UserRegistrationError,
+    USER_LOGIN_ERROR_MESSAGE,
+)
 from server.apps.accounts.logic import AccountsLogic
 from server.apps.jwt_utils import to_jwt
 
@@ -38,6 +41,11 @@ class RegistrationInput(graphene.InputObjectType):
     password_confirmation = graphene.String(required=True)
 
 
+class LoginInput(graphene.InputObjectType):
+    email = graphene.String(required=True)
+    password = graphene.String(required=True)
+
+
 class UserRegistrationMutation(graphene.Mutation):
     class Arguments:
         input = RegistrationInput(required=True)
@@ -52,3 +60,36 @@ class UserRegistrationMutation(graphene.Mutation):
             return UserRegistrationMutation(errors=result)
 
         return UserRegistrationMutation(user=result[0])
+
+
+class UserSuccess(ObjectType):
+    user = graphene.Field(User)
+
+
+class LoginUserError(ObjectType):
+    error = graphene.String(required=True)
+
+
+class LoginUserPayload(graphene.Union):
+    class Meta:
+        types = (LoginUserError, UserSuccess)
+
+
+class LoginMutation(graphene.Mutation):
+    class Arguments:
+        input = LoginInput(required=True)
+
+    Output = LoginUserPayload
+
+    def mutate(self, info, **inputs):
+        result = AccountsLogic.login_with_password(inputs["input"])
+
+        if result is None:
+            return LoginUserError(error=USER_LOGIN_ERROR_MESSAGE)
+
+        return UserSuccess(user=result[0])
+
+
+class AccountsMutation(ObjectType):
+    registration = UserRegistrationMutation.Field()
+    login = LoginMutation.Field()

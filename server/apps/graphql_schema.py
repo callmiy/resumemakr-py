@@ -2,9 +2,7 @@
 
 from graphene import ObjectType, Schema, String
 
-from server.apps.accounts.accounts_graphql_schema import (
-    UserRegistrationMutation,
-)  # noqa
+from server.apps.accounts.accounts_graphql_schema import AccountsMutation
 
 
 class AppQuery(ObjectType):
@@ -14,8 +12,8 @@ class AppQuery(ObjectType):
         return "hello"
 
 
-class AppMutation(ObjectType):
-    registration = UserRegistrationMutation.Field()
+class AppMutation(AccountsMutation, ObjectType):
+    pass
 
 
 graphql_schema = Schema(query=AppQuery, mutation=AppMutation)
