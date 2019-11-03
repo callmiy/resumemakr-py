@@ -19,7 +19,7 @@ from server.settings.components import BASE_DIR, config
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-SECRET_KEY = config("DJANGO_SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY")
 
 # Application definition:
 
@@ -49,6 +49,7 @@ INSTALLED_APPS: Tuple[str, ...] = (
     "django_http_referrer_policy",
     "django.contrib.postgres",
     "graphene_django",
+    "corsheaders",
 )
 
 MIDDLEWARE: Tuple[str, ...] = (

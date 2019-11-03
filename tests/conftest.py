@@ -9,6 +9,9 @@ It may be also used for extending doctest's context:
 """
 
 import pytest
+from graphene.test import Client
+
+from server.apps.graphql_schema import graphql_schema
 
 
 @pytest.fixture(autouse=True)
@@ -34,6 +37,38 @@ def _auth_backends(settings):
 
 
 @pytest.fixture()
-def main_heading():
-    """An example fixture containing some html fragment."""
-    return "<h1>wemake-django-template</h1>"
+def graphql_client():
+    return Client(graphql_schema)
+
+
+@pytest.fixture()
+def user_registration_query():
+    user_fragment_name = "UserFragment"
+
+    user_fragment = f"""
+      fragment {user_fragment_name} on User {{
+        id
+        name
+        email
+        jwt
+        insertedAt
+        updatedAt
+      }}
+    """
+
+    return f"""
+        mutation RegisterUser($input: RegistrationInput!) {{
+            registration(input: $input) {{
+                user {{
+                    ...{user_fragment_name}
+                }}
+
+                errors {{
+                    email
+                }}
+            }}
+
+        }}
+
+        {user_fragment}
+    """
