@@ -8,11 +8,15 @@ It may be also used for extending doctest's context:
 2. https://docs.pytest.org/en/latest/doctest.html
 """
 
+import base64
+import os
+from pathlib import PurePath
+
 import pytest
 from graphene.test import Client
 
+from server.file_upload_utils import data_url_encoded_string_delimiter
 from server.apps.graphql_schema import graphql_schema
-
 
 user_fragment_name = "UserFragment"
 
@@ -28,10 +32,15 @@ user_fragment = f"""
     """
 
 
+@pytest.fixture()
+def test_root():
+    return PurePath(os.path.abspath(__file__)).parent
+
+
 @pytest.fixture(autouse=True)
-def _media_root(settings, tmpdir_factory):
-    """Forces django to save media files into temp folder."""
-    settings.MEDIA_ROOT = tmpdir_factory.mktemp("media", numbered=True)
+def _media_root(settings, test_root):
+    """Forces django to save media files into custom location."""
+    settings.MEDIA_ROOT = test_root.joinpath("media")
 
 
 @pytest.fixture(autouse=True)
@@ -53,6 +62,13 @@ def _auth_backends(settings):
 @pytest.fixture()
 def graphql_client():
     return Client(graphql_schema)
+
+
+@pytest.fixture()
+def data_url_encoded_file(settings, test_root):
+    with open(test_root.joinpath("test-files/dog.jpeg"), "rb") as dog_file:
+        dog_string = base64.urlsafe_b64encode(dog_file.read()).decode()
+        return f"data:image/jpeg{data_url_encoded_string_delimiter}{dog_string}"
 
 
 @pytest.fixture()

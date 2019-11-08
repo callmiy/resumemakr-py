@@ -71,3 +71,4 @@ polint = "^0.4"
 dennis = "^0.9"
 black = {version = "^18.3-alpha.0", allows-prereleases = true}
 pytest-watch = "^4.2"
+rope = "^0.14.0"

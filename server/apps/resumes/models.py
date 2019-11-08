@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import CITextField
 from server.apps.accounts.models import User
 
 
-class Resumes(models.Model):  # type: ignore[disallow_any_explicit]
+class Resume(models.Model):  # type: ignore[disallow_any_explicit]
     id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
     title = CITextField()
     description = models.TextField(blank=True, null=True)
@@ -31,7 +31,7 @@ class Education(models.Model):
     to_date = models.CharField(max_length=255, blank=True, null=True)
     index = models.IntegerField()
     resume = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
@@ -62,7 +62,7 @@ class Experience(models.Model):
     index = models.IntegerField()
 
     resume = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
@@ -97,7 +97,7 @@ class PersonalInfo(models.Model):
     date_of_birth = models.CharField(max_length=255, blank=True, null=True)
 
     resume = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
@@ -115,7 +115,7 @@ class ResumeHobby(models.Model):
     text = models.TextField()
 
     owner = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
@@ -134,7 +134,7 @@ class Skill(models.Model):
     index = models.IntegerField()
 
     resume = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
@@ -165,7 +165,7 @@ class SpokenLanguage(models.Model):  # type: ignore[disallow_any_explicit] # noq
     updated_at = models.DateTimeField(auto_now=True)
 
     owner = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
@@ -180,7 +180,7 @@ class SupplementarySkill(models.Model):  # type: ignore[disallow_any_explicit] #
     updated_at = models.DateTimeField(auto_now=True)
 
     owner = models.ForeignKey(
-        Resumes, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
 
     class Meta:
