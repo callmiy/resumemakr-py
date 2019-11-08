@@ -18,6 +18,8 @@ from graphene.test import Client
 from server.file_upload_utils import data_url_encoded_string_delimiter
 from server.apps.graphql_schema import graphql_schema
 
+typename = "__typename"
+
 user_fragment_name = "UserFragment"
 
 user_fragment = f"""
@@ -30,6 +32,9 @@ user_fragment = f"""
             updatedAt
       }}
     """
+
+
+resume_fragment_name = "ResumeFragment"
 
 
 @pytest.fixture()
@@ -97,7 +102,7 @@ def login_query():
     return f"""
         mutation LoginUser($input: LoginInput!) {{
             login(input: $input) {{
-                __typename
+               {typename}
 
                 ... on UserSuccess {{
                     user {{
@@ -112,4 +117,43 @@ def login_query():
         }}
 
         {user_fragment}
+    """
+
+
+@pytest.fixture()
+def resume_fragment():
+    return f"""
+        fragment {resume_fragment_name} on Resume {{
+            id
+            title
+            description
+            userId
+        }}
+    """
+
+
+@pytest.fixture()
+def create_resume_query(resume_fragment):
+    return f"""
+        mutation CreateResume($input: CreateResumeInput!) {{
+            createResume(input: $input) {{
+                {typename}
+
+                ... on ResumeSuccess {{
+                    ...{resume_fragment_name}
+                }}
+
+                ... on CreateResumeErrors {{
+                    errors
+                }}
+            }}
+        }}
+
+        {resume_fragment}
+    """
+
+
+@pytest.fixture()
+def create_personal_info_query():
+    return f"""
     """
