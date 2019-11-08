@@ -17,6 +17,7 @@ from graphene.test import Client
 
 from server.file_upload_utils import data_url_encoded_string_delimiter
 from server.apps.graphql_schema import graphql_schema
+from server.apps.accounts.logic import AccountsLogic
 
 typename = "__typename"
 
@@ -74,6 +75,22 @@ def data_url_encoded_file(settings, test_root):
     with open(test_root.joinpath("test-files/dog.jpeg"), "rb") as dog_file:
         dog_string = base64.urlsafe_b64encode(dog_file.read()).decode()
         return f"data:image/jpeg{data_url_encoded_string_delimiter}{dog_string}"
+
+
+@pytest.fixture()
+def create_user_params():
+    return {
+        "name": "kanmii",
+        "email": "a@b.com",
+        "password": "nicePWord",
+        "password_confirmation": "nicePWord",
+        "source": "password",
+    }
+
+
+@pytest.fixture()
+def registered_user(create_user_params):
+    return AccountsLogic.register_user_with_password(create_user_params)
 
 
 @pytest.fixture()
