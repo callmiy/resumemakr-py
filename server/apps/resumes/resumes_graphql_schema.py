@@ -63,9 +63,6 @@ class PersonalInfo(ObjectType):
     photo = graphene.String()
     resume_id = graphene.ID()
 
-    def resolve_photo(self, info):
-        return self.photo
-
 
 class CreatePersonalInfoInput(graphene.InputObjectType):
     first_name = graphene.String()

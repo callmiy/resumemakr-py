@@ -31,7 +31,7 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
         with open(file_path, "wb") as storage_location:  # noqa
             storage_location.write(bytes_string)
-            return f"{settings.MEDIA_URL}/{file_name}", file_path
+            return f"{settings.MEDIA_URL}{file_name}", file_path
 
     @staticmethod
     def create_resume(params: CreateResumeAttrs) -> ResumeLike:
@@ -60,6 +60,12 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         resume = ResumesDjangoLogic.get_resume(
             GetResumeAttrs(user_id=user_id, id=resume_id)
         )
+
+        photo = params.get("photo")
+
+        if photo is not None:
+            url, _ = ResumesDjangoLogic.save_data_url_encoded_file(photo)
+            params["photo"] = url
 
         personal_info = PersonalInfo(**params, resume=cast(Resume, resume))
         return cast(PersonalInfoLike, personal_info)

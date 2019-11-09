@@ -41,7 +41,7 @@ def test_create_resume_with_non_unique_title_succeeds(registered_user):
 
 
 @pytest.mark.django_db
-def test_create_personal_info_success(
+def test_create_personal_info_no_photo_succeeds(
     create_personal_info_query, graphql_client, user_and_resume_fixture
 ):  # noqa
     user, resume = user_and_resume_fixture
@@ -59,3 +59,33 @@ def test_create_personal_info_success(
 
     assert personal_info["firstName"] == "kanmii"
     assert personal_info["resumeId"] == resume_id
+
+
+@pytest.mark.django_db
+def test_create_personal_info_with_photo_succeeds(
+    create_personal_info_query,
+    graphql_client,
+    user_and_resume_fixture,
+    data_url_encoded_file,
+    settings,
+):  # noqa
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    create_params = {
+        "firstName": "kanmii",
+        "resumeId": resume_id,
+        "photo": data_url_encoded_file,
+    }  # noqa
+
+    result = graphql_client.execute(
+        create_personal_info_query,
+        variables={"input": create_params},
+        context={"current_user": user},
+    )
+
+    personal_info = result["data"]["createPersonalInfo"]["personalInfo"]
+    photo = personal_info["photo"]
+
+    assert photo.startswith(settings.MEDIA_URL)
+    assert photo.endswith(".jpeg")
