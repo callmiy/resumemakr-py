@@ -2,13 +2,14 @@
 
 import base64
 from time import time
+from typing import Tuple
 
 data_url_encoded_string_delimiter = ";base64,"
 
 
 def bytes_and_file_name_from_data_url_encoded_string(
     data_url_encoded_string: str
-) -> str:  # noqa
+) -> Tuple[bytes, str]:  # noqa
     mime_with_data, base64_encoded_string = data_url_encoded_string.split(
         data_url_encoded_string_delimiter
     )  # noqa

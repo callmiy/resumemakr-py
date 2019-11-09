@@ -17,17 +17,21 @@ class CreateResumeRequiredAttrs(TypedDict):
     title: str
 
 
-class CreateResumeAttrs(CreateResumeRequiredAttrs):
+class CreateResumeAttrs(CreateResumeRequiredAttrs, total=False):
     description: str
 
 
 class ResumesLogicInterface(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
-    def save_data_url_encoded_file(base64_encoded_file: str) -> Tuple[str, str]:  # noqa
+    def save_data_url_encoded_file(
+        cls, base64_encoded_file: str
+    ) -> Tuple[str, str]:  # noqa
         pass
 
-    def create_resume(params: CreateResumeAttrs) -> ResumeLike:
+    @classmethod
+    @abstractmethod
+    def create_resume(cls, params: CreateResumeAttrs) -> ResumeLike:
         pass
 
 

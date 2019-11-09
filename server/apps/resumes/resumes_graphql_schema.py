@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
+from typing import cast
+
+
 import graphene
 from graphene.types import ObjectType
 
-from server.apps.resumes.resumes_interfaces import (
+from server.apps.resumes.logic import ResumesLogic
+from server.apps.resumes.resumes_interfaces import (  # noqa
     PHOTO_ALREADY_UPLOADED,
     CreateResumeAttrs,
-)  # noqa
-from server.apps.resumes.logic import ResumesLogic
+)
 
 
 class Resume(ObjectType):
@@ -43,8 +46,8 @@ class CreateResumeMutation(graphene.Mutation):
 
     def mutate(self, info, **inputs):
         user = info.context["current_user"]
-        params = CreateResumeAttrs(**inputs["input"], user_id=user.id)
-        resume = ResumesLogic.create_resume(params)
+        params = dict(**inputs["input"], user_id=user.id)
+        resume = ResumesLogic.create_resume(cast(CreateResumeAttrs, params))
         return ResumeSuccess(resume=resume)
 
 
