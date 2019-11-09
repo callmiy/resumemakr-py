@@ -90,7 +90,10 @@ def create_user_params():
 
 @pytest.fixture()
 def registered_user(create_user_params):
-    return AccountsLogic.register_user_with_password(create_user_params)
+    user_credential = AccountsLogic.register_user_with_password(
+        create_user_params
+    )  # noqa
+    return user_credential[0]
 
 
 @pytest.fixture()
@@ -157,7 +160,9 @@ def create_resume_query(resume_fragment):
                 {typename}
 
                 ... on ResumeSuccess {{
-                    ...{resume_fragment_name}
+                   resume {{
+                        ...{resume_fragment_name}
+                   }} 
                 }}
 
                 ... on CreateResumeErrors {{

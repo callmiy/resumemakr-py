@@ -2,7 +2,10 @@
 
 from graphene import ObjectType, Schema, String
 
-from server.apps.accounts.accounts_graphql_schema import AccountsMutation
+from server.apps.accounts.accounts_graphql_schema import (
+    AccountsCombinedMutation,
+)  # noqa
+from server.apps.resumes.resumes_graphql_schema import ResumesCombinedMutation
 
 
 class AppQuery(ObjectType):
@@ -12,7 +15,9 @@ class AppQuery(ObjectType):
         return "hello"
 
 
-class AppMutation(AccountsMutation, ObjectType):
+class AppMutation(
+    ResumesCombinedMutation, AccountsCombinedMutation, ObjectType
+):  # noqa
     pass
 
 

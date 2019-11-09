@@ -212,31 +212,6 @@ sqlparse = "*"
 
 [[package]]
 category = "main"
-description = "A helper class for handling configuration defaults of packaged apps gracefully."
-name = "django-appconf"
-optional = false
-python-versions = "*"
-version = "1.0.3"
-
-[package.dependencies]
-django = "*"
-six = "*"
-
-[[package]]
-category = "main"
-description = "Keep track of failed login attempts in Django-powered sites."
-name = "django-axes"
-optional = false
-python-versions = "~=3.6"
-version = "5.0.18"
-
-[package.dependencies]
-django = ">=1.11"
-django-appconf = ">=1.0.3"
-django-ipware = ">=2.0.2"
-
-[[package]]
-category = "main"
 description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
 name = "django-cors-headers"
 optional = false
@@ -245,17 +220,6 @@ version = "3.1.1"
 
 [package.dependencies]
 Django = ">=1.11"
-
-[[package]]
-category = "main"
-description = "Django Content Security Policy support."
-name = "django-csp"
-optional = false
-python-versions = "*"
-version = "3.5"
-
-[package.dependencies]
-Django = ">=1.8"
 
 [[package]]
 category = "dev"
@@ -290,22 +254,6 @@ version = "3.11.0"
 
 [package.dependencies]
 django = ">=1.11"
-
-[[package]]
-category = "main"
-description = "django-http-referrer-policy provides a middleware class implementing the Referrer-Policy header for Django-powered sites."
-name = "django-http-referrer-policy"
-optional = false
-python-versions = ">=3.5.0"
-version = "1.0.1"
-
-[[package]]
-category = "main"
-description = "A Django utility application that returns client's real IP address"
-name = "django-ipware"
-optional = false
-python-versions = "*"
-version = "2.1.0"
 
 [[package]]
 category = "dev"
@@ -701,7 +649,7 @@ description = "Experimental type system extensions for programs checked with the
 name = "mypy-extensions"
 optional = false
 python-versions = "*"
-version = "0.4.1"
+version = "0.4.3"
 
 [[package]]
 category = "dev"
@@ -1442,7 +1390,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "524c854a89d578daf44159dd40ef60a183647b246c6f93be28b68639f78944de"
+content-hash = "d4971af8a16c20e149716cc87411b710192061d3dd6c531ad1d19a2c31bd9873"
 python-versions = "3.7.4"
 
 [metadata.hashes]
@@ -1469,15 +1417,10 @@ decorator = ["86156361c50488b84a3f148056ea716ca587df2f0de1d34750d35c21312725de",
 dennis = ["8c942dd5da7d03c65daebc069c5ee5c7f1374ac9b0c8c89c627caa66fe822604", "f6487392ac91800c5f0684a99b404b7fd0f72ceb48faeb5a0ce4e2c24fb62d3f"]
 dictdiffer = ["97cf4ef98ebc1acf737074aed41e379cf48ab5ff528c92109dfb8e2e619e6809", "b3ad476fc9cca60302b52c50e1839342d2092aeaba586d69cbf9249f87f52463"]
 django = ["4025317ca01f75fc79250ff7262a06d8ba97cd4f82e93394b2a0a6a4a925caeb", "a8ca1033acac9f33995eb2209a6bf18a4681c3e5269a878e9a7e0b7384ed1ca3"]
-django-appconf = ["35f13ca4d567f132b960e2cd4c832c2d03cb6543452d34e29b7ba10371ba80e3", "c98a7af40062e996b921f5962a1c4f3f0c979fa7885f7be4710cceb90ebe13a6"]
-django-axes = ["fb8ab21a9da0c6e0533311faef760bcf39588d065d7ab101e17ec760ccf00a4a", "fc622cdd3c338233b0dad9dd7b0cd517503d2905963a1df9d2112b36a6259faf"]
 django-cors-headers = ["5762ec9c2d59f38c76828dc1d4308baca4bc0d3e1d6f217683e7a24a1c4611a3", "ee02f4b699e9b6645602a46d0adb430ee940a1bf8df64f77e516f8d7711fee60"]
-django-csp = ["04600237701e6d6ff78ed7d41209ff923988148bf292c128f6b474b9befe444f", "8b9997df89a7a936d7c397e051367f974aa1d1a97d0b32acb4300087b3bed071"]
 django-debug-toolbar = ["17c53cd6bf4e7d69902aedf9a1d26c5d3b7369b54c5718744704f27b5a72f35d", "9a23ada2e43cd989195db3c18710b5d7451134a0d48127ab64c1d2ad81700342"]
 django-feature-policy = ["9300ea9860c7b4808463aedb7280ceeebd7fb3a304098e9c3c05e633fba1dd3f", "ad80458672ea3ae69577b0867b239b67bd659b939323bdd7456dd1b919163689"]
 django-health-check = ["3aa7319005673766c2897bfed743416589fa90dc146cc92b1cccdce09f834598", "805324b3a7275a087903928df4fc94759f131bc0ba7e5eb18806005c4a2a4f2f"]
-django-http-referrer-policy = ["3a867e2ac3f83b162a2bc1241dc2ed209e555e709e6566fef6bb1f716c733c00", "9847711f55991a9efd3a47e272370da0986c9dac4916e1ab1b4b6e1885b69365"]
-django-ipware = ["a7c7a8fd019dbdc9c357e6e582f65034e897572fc79a7e467674efa8aef9d00b"]
 django-querycount = ["8f5123d78716ff0704f2373e746a7200b8d8417798ce4a99bf2de87e3768f9ce"]
 django-split-settings = ["db4d24a2da2f17e0aa97437f052eda7d043a3e2eaa9c8a85a171271e0f91852b", "f5a5c6431ab00a78959f7930a79faaf488b2fe8a4eddc4297ef8cd593e74868d"]
 django-stubs = ["cd6a7333d518b9168f001b8a31c4ea89a91dea40a9dd1535c798635f69a5f80a", "e3673348a42c7259e81a4ea141dae2b2e711220ec631a6215ba9dc23cdcabdf4"]
@@ -1514,7 +1457,7 @@ marshmallow-polyfield = ["963a01e80bca5cb4da42b8d2f7e6e90946257ae22d22ff2ed104a8
 mccabe = ["ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42", "dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"]
 more-itertools = ["409cd48d4db7052af495b09dec721011634af3753ae1ef92d2b32f73a745f832", "92b8c4b06dac4f0611c0729b2f2ede52b2e1bac1ab48f089c7ddc12e26bb60c4"]
 mypy = ["0107bff4f46a289f0e4081d59b77cef1c48ea43da5a0dbf0005d54748b26df2a", "07957f5471b3bb768c61f08690c96d8a09be0912185a27a68700f3ede99184e4", "10af62f87b6921eac50271e667cc234162a194e742d8e02fc4ddc121e129a5b0", "11fd60d2f69f0cefbe53ce551acf5b1cec1a89e7ce2d47b4e95a84eefb2899ae", "15e43d3b1546813669bd1a6ec7e6a11d2888db938e0607f7b5eef6b976671339", "352c24ba054a89bb9a35dd064ee95ab9b12903b56c72a8d3863d882e2632dc76", "437020a39417e85e22ea8edcb709612903a9924209e10b3ec6d8c9f05b79f498", "49925f9da7cee47eebf3420d7c0e00ec662ec6abb2780eb0a16260a7ba25f9c4", "6724fcd5777aa6cebfa7e644c526888c9d639bd22edd26b2a8038c674a7c34bd", "7a17613f7ea374ab64f39f03257f22b5755335b73251d0d253687a69029701ba", "cdc1151ced496ca1496272da7fc356580e95f2682be1d32377c22ddebdf73c91"]
-mypy-extensions = ["37e0e956f41369209a3d5f34580150bcacfabaa57b33a15c0b25f4b5725e0812", "b16cabe759f55e3409a7d231ebd2841378fb0c27a5d1994719e340e4f429ac3e"]
+mypy-extensions = ["090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d", "2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"]
 nitpick = ["fb2f5f6e5c1ae8f351b0f9c01bafe68c35d87480e9bac7064cf7d15491d70db9", "ff451b41fbfe50ecda0522756a5628d6861c8c4f25c183d65bcd4efede0c8c95"]
 nplusone = ["1726c0a10c0aa7eabb04e24db2882ff97b6b7ee29d729a8d97dcbd12ef5a5651", "96b1e6e29e6af3e71b67d0cc012a5ec8c97c6a2f5399f4ba41a2bbe0e253a9ac"]
 packaging = ["a7ac867b97fdc07ee80a8058fe4435ccd274ecc3b0ed61d852d7d53055528cf9", "c491ca87294da7cc01902edbe30a5bc6c4c28172b5138ab4e4aa1b9d7bfaeafe"]

@@ -8,6 +8,11 @@ from server.apps.accounts.models import User
 
 
 class Resume(models.Model):  # type: ignore[disallow_any_explicit]
+    class Meta:
+        db_table = "resumes"
+
+        indexes = [models.Index(fields=("user",), name="resumes_user_id_index")]
+
     id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
     title = CITextField()
     description = models.TextField(blank=True, null=True)
@@ -17,10 +22,8 @@ class Resume(models.Model):  # type: ignore[disallow_any_explicit]
         User, models.DO_NOTHING, db_constraint=False, db_index=False
     )
 
-    class Meta:
-        db_table = "resumes"
-
-        indexes = [models.Index(fields=("user",), name="resumes_user_id_index")]
+    def __str__(self):
+        return self.title
 
 
 class Education(models.Model):

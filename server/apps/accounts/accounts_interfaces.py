@@ -1,20 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import uuid
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
-from typing import Mapping, Tuple, Union, NamedTuple, Optional
+from typing import Mapping, NamedTuple, Optional, Tuple, Union
 
 from typing_extensions import Protocol
 
-
-class TimestampLike(Protocol):
-    inserted_at: datetime
-    updated_at: datetime
-
-
-class UUID_IdLike(Protocol):
-    id: uuid.UUID
+from server.interfaces import TimestampLike, UUID_IdLike
 
 
 class UserLike(UUID_IdLike, TimestampLike, Protocol):

@@ -90,6 +90,6 @@ class LoginMutation(graphene.Mutation):
         return UserSuccess(user=result[0])
 
 
-class AccountsMutation(ObjectType):
+class AccountsCombinedMutation(ObjectType):
     registration = UserRegistrationMutation.Field()
     login = LoginMutation.Field()

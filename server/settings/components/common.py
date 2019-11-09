@@ -10,7 +10,7 @@ For the full list of settings and their config, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-from typing import Dict, List, Tuple, Union
+from typing import Tuple
 
 from django.utils.translation import ugettext_lazy as ugt
 
@@ -36,8 +36,6 @@ INSTALLED_APPS: Tuple[str, ...] = (
     # django-admin:
     "django.contrib.admin",
     "django.contrib.admindocs",
-    # Security:
-    "axes",
     # Health checks:
     # You may want to enable other checks as well,
     # see: https://github.com/KristianOellegaard/django-health-check
@@ -45,16 +43,12 @@ INSTALLED_APPS: Tuple[str, ...] = (
     "health_check.db",
     "health_check.cache",
     "health_check.storage",
-    # Third party apps
-    "django_http_referrer_policy",
     "django.contrib.postgres",
-    "graphene_django",
     "corsheaders",
+    "graphene_django",
 )
 
 MIDDLEWARE: Tuple[str, ...] = (
-    # Content Security Policy:
-    "csp.middleware.CSPMiddleware",
     # Django:
     "django.middleware.security.SecurityMiddleware",
     "django_feature_policy.FeaturePolicyMiddleware",  # django-feature-policy
@@ -65,10 +59,6 @@ MIDDLEWARE: Tuple[str, ...] = (
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # Axes:
-    "axes.middleware.AxesMiddleware",
-    # Django HTTP Referrer Policy:
-    "django_http_referrer_policy.middleware.ReferrerPolicyMiddleware",
 )
 
 ROOT_URLCONF = "server.urls"
@@ -157,10 +147,7 @@ MEDIA_ROOT = BASE_DIR.joinpath("media")
 # Django authentication system
 # https://docs.djangoproject.com/en/2.2/topics/auth/
 
-AUTHENTICATION_BACKENDS = (
-    "axes.backends.AxesBackend",
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
@@ -175,18 +162,14 @@ PASSWORD_HASHERS = [
 # https://docs.djangoproject.com/en/2.2/topics/security/
 
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 
 X_FRAME_OPTIONS = "DENY"
 
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy#Syntax
-REFERRER_POLICY = "no-referrer"
-
-# https://github.com/adamchainz/django-feature-policy#setting
-FEATURE_POLICY: Dict[str, Union[str, List[str]]] = {}  # noqa: TAE002
-
-
 # Timeouts
 EMAIL_TIMEOUT = 5
+
+
+GRAPHENE = {"SCHEMA": "server.apps.graphql_schema.graphql_schema"}
