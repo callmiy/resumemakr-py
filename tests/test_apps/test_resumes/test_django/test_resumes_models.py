@@ -42,7 +42,20 @@ def test_create_resume_with_non_unique_title_succeeds(registered_user):
 
 @pytest.mark.django_db
 def test_create_personal_info_success(
-    create_personal_info_query, graphql_client
+    create_personal_info_query, graphql_client, user_and_resume_fixture
 ):  # noqa
-    create_params = {"firstName": "kanmii"}
-    return create_params
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    create_params = {"firstName": "kanmii", "resumeId": resume_id}  # noqa
+
+    result = graphql_client.execute(
+        create_personal_info_query,
+        variables={"input": create_params},
+        context={"current_user": user},
+    )
+
+    personal_info = result["data"]["createPersonalInfo"]["personalInfo"]
+
+    assert personal_info["firstName"] == "kanmii"
+    assert personal_info["resumeId"] == resume_id

@@ -6,12 +6,15 @@ from typing import Tuple, cast
 from django.conf import settings
 from django.db import IntegrityError, transaction
 
-from server.apps.resumes.models import Resume
+from server.apps.resumes.models import Resume, PersonalInfo
 from server.apps.resumes.resumes_commons import (
     CreateResumeAttrs,  # noqa
     ResumeLike,
     ResumesLogicInterface,
     uniquify_resume_title,
+    CreatePersonalInfoAttrs,
+    PersonalInfoLike,
+    GetResumeAttrs,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -42,3 +45,21 @@ class ResumesDjangoLogic(ResumesLogicInterface):
             resume = Resume(**params)
             resume.save()
             return cast(ResumeLike, resume)
+
+    @staticmethod
+    def get_resume(params: GetResumeAttrs) -> ResumeLike:
+        return cast(ResumeLike, Resume.objects.get(**params))
+
+    @staticmethod
+    def create_personal_info(
+        params: CreatePersonalInfoAttrs
+    ) -> PersonalInfoLike:  # noqa
+        resume_id = params.pop("resume_id")  # type: ignore
+        user_id = params.pop("user_id")  # type: ignore
+
+        resume = ResumesDjangoLogic.get_resume(
+            GetResumeAttrs(user_id=user_id, id=resume_id)
+        )
+
+        personal_info = PersonalInfo(**params, resume=cast(Resume, resume))
+        return cast(PersonalInfoLike, personal_info)

@@ -15,9 +15,10 @@ from pathlib import PurePath
 import pytest
 from graphene.test import Client
 
-from server.file_upload_utils import data_url_encoded_string_delimiter
-from server.apps.graphql_schema import graphql_schema
 from server.apps.accounts.logic import AccountsLogic
+from server.apps.graphql_schema import graphql_schema
+from server.apps.resumes.logic import ResumesLogic
+from server.file_upload_utils import data_url_encoded_string_delimiter
 
 typename = "__typename"
 
@@ -36,6 +37,8 @@ user_fragment = f"""
 
 
 resume_fragment_name = "ResumeFragment"
+
+personal_info_fragment_name = "PersonalInfoFragment"
 
 
 @pytest.fixture()
@@ -94,6 +97,14 @@ def registered_user(create_user_params):
         create_user_params
     )  # noqa
     return user_credential[0]
+
+
+@pytest.fixture()
+def user_and_resume_fixture(registered_user):
+    resume = ResumesLogic.create_resume(
+        dict(user_id=registered_user.id, title="title 1")
+    )  # noqa
+    return (registered_user, resume)
 
 
 @pytest.fixture()
@@ -162,7 +173,7 @@ def create_resume_query(resume_fragment):
                 ... on ResumeSuccess {{
                    resume {{
                         ...{resume_fragment_name}
-                   }} 
+                   }}
                 }}
 
                 ... on CreateResumeErrors {{
@@ -176,6 +187,41 @@ def create_resume_query(resume_fragment):
 
 
 @pytest.fixture()
-def create_personal_info_query():
+def personal_info_fragment():
     return f"""
+        fragment {personal_info_fragment_name} on PersonalInfo {{
+            id
+            firstName
+            lastName
+            profession
+            address
+            email
+            phone
+            photo
+            dateOfBirth
+            resumeId
+        }}
+    """
+
+
+@pytest.fixture()
+def create_personal_info_query(personal_info_fragment):
+    return f"""
+        mutation CreatePersonalInfo($input: CreatePersonalInfoInput!) {{
+            createPersonalInfo(input: $input) {{
+                {typename}
+
+                ... on PersonalInfoSuccess {{
+                    personalInfo {{
+                        ...{personal_info_fragment_name}
+                    }}
+                }}
+
+                ... on CreatePersonalInfoErrors {{
+                    errors
+                }}
+            }}
+        }}
+
+        {personal_info_fragment}
     """

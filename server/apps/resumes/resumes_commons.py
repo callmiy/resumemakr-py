@@ -36,8 +36,31 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     def create_resume(params: CreateResumeAttrs) -> ResumeLike:
         pass
 
+    @staticmethod
+    @abstractmethod
+    def create_personal_info(
+        params: CreatePersonalInfoAttrs
+    ) -> PersonalInfoLike:  # noqa
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_resume(params: GetResumeAttrs) -> ResumeLike:
+        pass
+
+
+class GetResumeAttrs(TypedDict):
+    user_id: str
+    id: str
+
 
 class ResumeLike(UUID_IdLike, TimestampLike, Protocol):
+    title: str
+    description: str
+    user_id: str
+
+
+class PersonalInfoLike(UUID_IdLike, TimestampLike, Protocol):
     first_name: str
     last_name: str
     profession: str
@@ -47,6 +70,22 @@ class ResumeLike(UUID_IdLike, TimestampLike, Protocol):
     date_of_birth: str
     photo: str
     resume_id: str
+
+
+class CreatePersonalInfoRequiredAttrs(TypedDict):
+    resume_id: str
+    user_id: str
+
+
+class CreatePersonalInfoAttrs(CreatePersonalInfoRequiredAttrs, total=False):
+    first_name: str
+    last_name: str
+    profession: str
+    address: str
+    email: str
+    phone: str
+    date_of_birth: str
+    photo: str
 
 
 def uniquify_resume_title(title: str) -> str:

@@ -2,13 +2,13 @@
 
 from typing import cast
 
-
 import graphene
 from graphene.types import ObjectType
 
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (  # noqa
     PHOTO_ALREADY_UPLOADED,
+    CreatePersonalInfoAttrs,
     CreateResumeAttrs,
 )
 
@@ -63,14 +63,52 @@ class PersonalInfo(ObjectType):
     photo = graphene.String()
     resume_id = graphene.ID()
 
-    def resolve_photo(self, info, **inputs):
-        params = inputs["input"]
-        photo_params = params.get("photo")
+    def resolve_photo(self, info):
+        return self.photo
 
-        if photo_params is not None:
-            if photo_params == PHOTO_ALREADY_UPLOADED:
-                return photo_params
+
+class CreatePersonalInfoInput(graphene.InputObjectType):
+    first_name = graphene.String()
+    last_name = graphene.String()
+    profession = graphene.String()
+    address = graphene.String()
+    email = graphene.String()
+    phone = graphene.String()
+    date_of_birth = graphene.String()
+    photo = graphene.String()
+    resume_id = graphene.ID(required=True)
+
+
+class PersonalInfoSuccess(ObjectType):
+    personal_info = graphene.Field(PersonalInfo)
+
+
+class CreatePersonalInfoErrors(ObjectType):
+    errors = graphene.String()
+
+
+class CreatePersonalInfoPayload(graphene.Union):
+    class Meta:
+        types = (PersonalInfoSuccess, CreatePersonalInfoErrors)
+
+
+class CreatePersonalInfoMutation(graphene.Mutation):
+    class Arguments:
+        input = CreatePersonalInfoInput(required=True)
+
+    Output = CreatePersonalInfoPayload
+
+    def mutate(self, info, **inputs):
+        user = info.context["current_user"]
+        params = dict(**inputs["input"], user_id=user.id)
+
+        personal_info = ResumesLogic.create_personal_info(
+            cast(CreatePersonalInfoAttrs, params)
+        )
+
+        return PersonalInfoSuccess(personal_info=personal_info)
 
 
 class ResumesCombinedMutation(ObjectType):
     create_resume = CreateResumeMutation.Field()
+    create_personal_info = CreatePersonalInfoMutation.Field()
