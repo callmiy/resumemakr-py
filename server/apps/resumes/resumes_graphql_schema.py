@@ -7,7 +7,7 @@ import graphene
 from graphene.types import ObjectType
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_interfaces import (  # noqa
+from server.apps.resumes.resumes_commons import (  # noqa
     PHOTO_ALREADY_UPLOADED,
     CreateResumeAttrs,
 )
