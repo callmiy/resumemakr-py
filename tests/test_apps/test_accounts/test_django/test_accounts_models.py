@@ -3,16 +3,14 @@
 import pytest
 from graphene.test import Client
 
-from server.apps.accounts.logic import (
-    AccountsLogic,
-    user_params_to_graphql_variable,
-)  # noqa
-
-from server.apps.accounts.accounts_interfaces import (
+from server.apps.accounts.accounts_commons import (  # noqa
     ATTRIBUTE_NOT_UNIQUE_ERROR_MESSAGE,
     USER_LOGIN_ERROR_MESSAGE,
-)  # noqa
-
+)
+from server.apps.accounts.logic import (
+    AccountsLogic,  # noqa
+    user_params_to_graphql_variable,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -87,3 +85,15 @@ def test_login_user_with_password_fails_cos_user_not_found(
     login_params = {"email": "b@b.com", "password": "nicePassword"}
     result = AccountsLogic.login_with_password(login_params)
     assert result is None
+
+
+def test_user_by_id_succeeds(registered_user):
+    user = AccountsLogic.get_user_by_id(registered_user.id)
+    assert user.email == registered_user.email
+
+
+def test_user_by_id_returns_none_cos_user_does_not_exist():
+    assert (
+        AccountsLogic.get_user_by_id("746d6853-f7b4-4525-bfd0-37af7370c7cb")
+        is None  # noqa
+    )

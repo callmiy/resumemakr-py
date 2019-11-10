@@ -58,15 +58,15 @@ class EducationAchievement(models.Model):
 
 class Experience(models.Model):
     id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
+    index = models.IntegerField()
+    resume = models.ForeignKey(
+        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
+    )
+
     position = models.TextField(blank=True, null=True)
     company_name = models.CharField(max_length=255, blank=True, null=True)
     from_date = models.CharField(max_length=255, blank=True, null=True)
     to_date = models.CharField(max_length=255, blank=True, null=True)
-    index = models.IntegerField()
-
-    resume = models.ForeignKey(
-        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
-    )
 
     class Meta:
         db_table = "experiences"

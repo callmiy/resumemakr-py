@@ -30,18 +30,25 @@ UserRegistrationReturnType = Union[
 
 UserLoginType = Optional[UserCredentialTupleType]
 
+MaybeUser = Optional[UserLike]
+
 
 class AccountsLogicInterface(metaclass=ABCMeta):
-    @classmethod
+    @staticmethod
     @abstractmethod
     def register_with_password(
-        cls, attrs: Mapping[str, str]
-    ) -> UserRegistrationReturnType:
+        attrs: Mapping[str, str]
+    ) -> UserRegistrationReturnType:  # noqa
         pass
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def login_with_password(cls, attrs: Mapping[str, str]) -> UserLoginType:
+    def login_with_password(attrs: Mapping[str, str]) -> UserLoginType:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_user_by_id(id: str) -> MaybeUser:
         pass
 
 

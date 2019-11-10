@@ -3,7 +3,7 @@
 from typing import cast
 
 import graphene
-from graphene.types import ObjectType
+from graphene.types import ObjectType, Interface
 
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (  # noqa
@@ -13,7 +13,15 @@ from server.apps.resumes.resumes_commons import (  # noqa
 )
 
 
+class TimeStampsInterface(Interface):
+    inserted_at = graphene.DateTime(required=True)
+    updated_at = graphene.DateTime(required=True)
+
+
 class Resume(ObjectType):
+    class Meta:
+        interfaces = (TimeStampsInterface,)
+
     id = graphene.ID(required=True)
     title = graphene.String(required=True)
     description = graphene.String(required=False)
@@ -45,7 +53,7 @@ class CreateResumeMutation(graphene.Mutation):
     Output = CreateResumePayload
 
     def mutate(self, info, **inputs):
-        user = info.context["current_user"]
+        user = info.context.current_user
         params = dict(**inputs["input"], user_id=user.id)
         resume = ResumesLogic.create_resume(cast(CreateResumeAttrs, params))
         return ResumeSuccess(resume=resume)
@@ -96,7 +104,7 @@ class CreatePersonalInfoMutation(graphene.Mutation):
     Output = CreatePersonalInfoPayload
 
     def mutate(self, info, **inputs):
-        user = info.context["current_user"]
+        user = info.context.current_user
         params = dict(**inputs["input"], user_id=user.id)
 
         personal_info = ResumesLogic.create_personal_info(
@@ -104,6 +112,27 @@ class CreatePersonalInfoMutation(graphene.Mutation):
         )
 
         return PersonalInfoSuccess(personal_info=personal_info)
+
+
+class TextOnly(ObjectType):
+    id: graphene.ID(required=True)  # type: ignore
+    text: graphene.String(required=True)  # type: ignore
+    owner_id: graphene.ID(required=True)  # type: ignore
+
+
+class CreateTextOnly(graphene.InputObjectType):
+    text: graphene.String(required=True)  # type: ignore
+    owner_id: graphene.ID(required=True)  # type: ignore
+
+
+class Experience(ObjectType):
+    id: graphene.ID(required=True)  # type: ignore
+    resume_id: graphene.ID(required=True)  # type: ignore
+    index = graphene.Int(required=True)
+    position = graphene.String()
+    company_name = graphene.String()
+    from_date = graphene.String()
+    to_date = graphene.String()
 
 
 class ResumesCombinedMutation(ObjectType):

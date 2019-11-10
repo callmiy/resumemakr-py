@@ -41,22 +41,15 @@ resume_fragment_name = "ResumeFragment"
 personal_info_fragment_name = "PersonalInfoFragment"
 
 
+timestamps_fragment = """
+    insertedAt
+    updatedAt
+"""
+
+
 @pytest.fixture()
 def test_root():
     return PurePath(os.path.abspath(__file__)).parent
-
-
-@pytest.fixture(autouse=True)
-def _modify_django_settings(settings, test_root):
-    """Forces django to save media files into custom location."""
-    """Deactivates security backend from Axes app."""
-    settings.MEDIA_ROOT = test_root.joinpath("media")
-    settings.PASSWORD_HASHERS = [
-        "django.contrib.auth.hashers.MD5PasswordHasher"
-    ]  # noqa
-    settings.AUTHENTICATION_BACKENDS = (
-        "django.contrib.auth.backends.ModelBackend",
-    )  # noqa
 
 
 @pytest.fixture()
@@ -150,6 +143,7 @@ def resume_fragment():
             title
             description
             userId
+            {timestamps_fragment}
         }}
     """
 

@@ -1,25 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.hashers import make_password, check_password
-from django.db import transaction
 from typing import Mapping, cast
 
+from django.contrib.auth.hashers import check_password, make_password
+from django.db import transaction
 from django.db.utils import IntegrityError
 
-from server.apps.accounts.models import Credential, User
-from server.apps.accounts.accounts_interfaces import (
+from server.apps.accounts.accounts_commons import (
     AccountsLogicInterface,
     UserCredentialTupleType,
-    UserRegistrationReturnType,
-    UserRegistrationError,
     UserLoginType,
+    UserRegistrationError,
+    UserRegistrationReturnType,
+    UserLike,
+    MaybeUser,
 )
+from server.apps.accounts.models import Credential, User
 
 
 class AccountsLogicDjango(AccountsLogicInterface):
-    @classmethod
+    @staticmethod
     def register_user_with_password(
-        cls, attrs: Mapping[str, str]
+        attrs: Mapping[str, str]
     ) -> UserRegistrationReturnType:
         with transaction.atomic():
             try:
@@ -41,8 +43,8 @@ class AccountsLogicDjango(AccountsLogicInterface):
             except IntegrityError:
                 return UserRegistrationError(email="has already been taken")
 
-    @classmethod
-    def login_with_password(cls, attrs: Mapping[str, str]) -> UserLoginType:
+    @staticmethod
+    def login_with_password(attrs: Mapping[str, str]) -> UserLoginType:
         try:
             credential = Credential.objects.get(user__email=attrs["email"])
 
@@ -52,4 +54,11 @@ class AccountsLogicDjango(AccountsLogicInterface):
                 )  # noqa
             return None
         except Credential.DoesNotExist:
+            return None
+
+    @staticmethod
+    def get_user_by_id(id: str) -> MaybeUser:
+        try:
+            return cast(UserLike, User.objects.get(pk=id))
+        except User.DoesNotExist:
             return None

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
+
 import pytest
 
 from server.apps.resumes.logic import ResumesLogic
@@ -7,8 +9,10 @@ from server.apps.resumes.resumes_commons import CreateResumeAttrs
 
 pytestmark = pytest.mark.django_db
 
+Context = namedtuple("Context", ("current_user",))
 
-def test_create_resume_success(
+
+def test_create_resume_succeeds(
     graphql_client, create_resume_query, registered_user
 ):  # noqa
     title = "t 12"
@@ -17,7 +21,7 @@ def test_create_resume_success(
     result = graphql_client.execute(
         create_resume_query,
         variables={"input": attrs},
-        context={"current_user": registered_user},
+        context=Context(current_user=registered_user),
     )  # noqa
 
     resume = result["data"]["createResume"]["resume"]
@@ -51,7 +55,7 @@ def test_create_personal_info_no_photo_succeeds(
     result = graphql_client.execute(
         create_personal_info_query,
         variables={"input": create_params},
-        context={"current_user": user},
+        context=Context(current_user=user),
     )
 
     personal_info = result["data"]["createPersonalInfo"]["personalInfo"]
@@ -79,7 +83,7 @@ def test_create_personal_info_with_photo_succeeds(
     result = graphql_client.execute(
         create_personal_info_query,
         variables={"input": create_params},
-        context={"current_user": user},
+        context=Context(current_user=user),
     )
 
     personal_info = result["data"]["createPersonalInfo"]["personalInfo"]

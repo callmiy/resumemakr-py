@@ -10,11 +10,29 @@ import logging
 from typing import List
 
 from server.settings.components import config
-from server.settings.components.common import INSTALLED_APPS, MIDDLEWARE
+from server.settings.components.common import (
+    INSTALLED_APPS,
+    MIDDLEWARE,
+    GRAPHENE,
+)  # noqa
 
 # Setting the development status:
 
 DEBUG = True
+
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": config("POSTGRES_DB"),
+        "USER": config("POSTGRES_USER"),
+        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "HOST": config("DJANGO_DATABASE_HOST"),
+        "PORT": config("DJANGO_DATABASE_PORT", cast=int),
+        "CONN_MAX_AGE": config("CONN_MAX_AGE", cast=int, default=60),
+        "OPTIONS": {"connect_timeout": 10},
+    }
+}
 
 ALLOWED_HOSTS = [config("DOMAIN_NAME"), "localhost", "127.0.0.1", "[::1]"]
 
@@ -35,6 +53,10 @@ MIDDLEWARE += (
     # Prints how many queries were executed, useful for the APIs.
     "querycount.middleware.QueryCountMiddleware",
 )
+
+GRAPHENE["MIDDLEWARE"] += (  # type: ignore
+    "graphene_django.debug.DjangoDebugMiddleware",
+)  # noqa
 
 
 def custom_show_toolbar(request):
@@ -62,3 +84,6 @@ MIDDLEWARE = ("nplusone.ext.django.NPlusOneMiddleware",) + MIDDLEWARE  # noqa
 NPLUSONE_RAISE = True  # comment out if you want to allow N+1 requests
 NPLUSONE_LOGGER = logging.getLogger("django")
 NPLUSONE_LOG_LEVEL = logging.WARN
+
+
+CSRF_COOKIE_HTTPONLY = False  # <- blocking graphiql if True

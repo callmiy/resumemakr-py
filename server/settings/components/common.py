@@ -51,7 +51,6 @@ INSTALLED_APPS: Tuple[str, ...] = (
 MIDDLEWARE: Tuple[str, ...] = (
     # Django:
     "django.middleware.security.SecurityMiddleware",
-    "django_feature_policy.FeaturePolicyMiddleware",  # django-feature-policy
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -66,24 +65,6 @@ ROOT_URLCONF = "server.urls"
 WSGI_APPLICATION = "server.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": config("POSTGRES_DB"),
-        "USER": config("POSTGRES_USER"),
-        "PASSWORD": config("POSTGRES_PASSWORD"),
-        "HOST": config("DJANGO_DATABASE_HOST"),
-        "PORT": config("DJANGO_DATABASE_PORT", cast=int),
-        "CONN_MAX_AGE": config("CONN_MAX_AGE", cast=int, default=60),
-        "OPTIONS": {"connect_timeout": 10},
-        "TEST": {"NAME": "resumemakr_test"},
-    }
-}
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -92,7 +73,7 @@ LANGUAGE_CODE = "en-us"
 USE_I18N = True
 USE_L10N = True
 
-LANGUAGES = (("en", ugt("English")), ("ru", ugt("Russian")))
+LANGUAGES = (("en", ugt("English")),)
 
 LOCALE_PATHS = ("locale/",)
 
@@ -150,9 +131,9 @@ MEDIA_ROOT = BASE_DIR.joinpath("media")
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
     "django.contrib.auth.hashers.BCryptPasswordHasher",
-    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
     "django.contrib.auth.hashers.Argon2PasswordHasher",
 ]
@@ -162,7 +143,7 @@ PASSWORD_HASHERS = [
 # https://docs.djangoproject.com/en/2.2/topics/security/
 
 SESSION_COOKIE_HTTPONLY = True
-# CSRF_COOKIE_HTTPONLY = True # <- blocking graphiql
+CSRF_COOKIE_HTTPONLY = True  # <- blocking graphiql must be False in dev
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 
@@ -172,4 +153,7 @@ X_FRAME_OPTIONS = "DENY"
 EMAIL_TIMEOUT = 5
 
 
-GRAPHENE = {"SCHEMA": "server.apps.graphql_schema.graphql_schema"}
+GRAPHENE = {
+    "SCHEMA": "server.apps.graphql_schema.graphql_schema",
+    "MIDDLEWARE": ("server.apps.graphql_schema.put_user_context",),
+}

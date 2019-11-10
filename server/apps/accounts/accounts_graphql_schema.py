@@ -3,12 +3,11 @@
 import graphene
 from graphene_django.types import ObjectType
 
-from server.apps.accounts.accounts_interfaces import (
+from server.apps.accounts.accounts_commons import (
     UserRegistrationError,
     USER_LOGIN_ERROR_MESSAGE,
 )
-from server.apps.accounts.logic import AccountsLogic
-from server.apps.jwt_utils import to_jwt
+from server.apps.accounts.logic import AccountsLogic, user_to_jwt
 
 
 class TimestampsInterface(graphene.Interface):
@@ -26,7 +25,7 @@ class User(ObjectType):
     email = graphene.String(required=True)
 
     def resolve_jwt(self, info):
-        return to_jwt({"user": str(self.id)})
+        return user_to_jwt(self)
 
 
 class RegistrationError(ObjectType):

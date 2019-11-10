@@ -16,15 +16,6 @@ PHOTO_ALREADY_UPLOADED = "___ALREADY_UPLOADED___"
 RESUME_TITLE_WITH_TIME = re.compile(r"^(.+?)_(\d{10})$")
 
 
-class CreateResumeRequiredAttrs(TypedDict):
-    user_id: str
-    title: str
-
-
-class CreateResumeAttrs(CreateResumeRequiredAttrs, total=False):
-    description: str
-
-
 class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
@@ -49,17 +40,55 @@ class ResumesLogicInterface(metaclass=ABCMeta):
         pass
 
 
-class GetResumeAttrs(TypedDict):
-    user_id: str
-    id: str
+def uniquify_resume_title(title: str) -> str:
+    matched = RESUME_TITLE_WITH_TIME.match(title)
+
+    if matched is not None:
+        title = matched.group(1)
+
+    part1, part2 = str(time()).split(".")
+    now = str(int(part1) + int(part2))[:10]
+    return f"{title}_{now}"
 
 
+############################ RESUME ############################## noqa
 class ResumeLike(UUID_IdLike, TimestampLike, Protocol):
     title: str
     description: str
     user_id: str
 
 
+class CreateResumeRequiredAttrs(TypedDict):
+    user_id: str
+    title: str
+
+
+class CreateResumeAttrs(CreateResumeRequiredAttrs, total=False):
+    description: str
+
+
+class GetResumeAttrs(TypedDict):
+    user_id: str
+    id: str
+
+
+############################ END RESUME ############################## noqa
+
+
+class CreateIndexableAttr(TypedDict):
+    index: int
+
+
+class CreateResumeComponentRequiredAttrs(TypedDict):
+    resume_id: str
+    user_id: str
+
+
+class Indexable(Protocol):
+    index: int
+
+
+############################ PERSONAL INFO ############################## noqa
 class PersonalInfoLike(UUID_IdLike, TimestampLike, Protocol):
     first_name: str
     last_name: str
@@ -72,12 +101,7 @@ class PersonalInfoLike(UUID_IdLike, TimestampLike, Protocol):
     resume_id: str
 
 
-class CreatePersonalInfoRequiredAttrs(TypedDict):
-    resume_id: str
-    user_id: str
-
-
-class CreatePersonalInfoAttrs(CreatePersonalInfoRequiredAttrs, total=False):
+class CreatePersonalInfoAttrs(CreateResumeComponentRequiredAttrs, total=False):
     first_name: str
     last_name: str
     profession: str
@@ -88,12 +112,100 @@ class CreatePersonalInfoAttrs(CreatePersonalInfoRequiredAttrs, total=False):
     photo: str
 
 
-def uniquify_resume_title(title: str) -> str:
-    matched = RESUME_TITLE_WITH_TIME.match(title)
+############################ END PERSONAL INFO ########################## noqa
 
-    if matched is not None:
-        title = matched.group(1)
+############################ EDUCATION ############################## noqa
+class EducationLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
+    school: str
+    course: str
+    from_date: str
+    to_date: str
+    resume_id: str
 
-    part1, part2 = str(time()).split(".")
-    now = str(int(part1) + int(part2))[:10]
-    return f"{title}_{now}"
+
+class CreateEducationAttrs(
+    CreateResumeComponentRequiredAttrs, CreateIndexableAttr, total=False
+):
+    school: str
+    course: str
+    from_date: str
+    to_date: str
+
+
+############################ END EDUCATION ############################ noqa
+
+############################ EXPERIENCE ############################## noqa
+
+
+class ExperienceLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
+    position: str
+    company_name: str
+    from_date: str
+    to_date: str
+    resume_id: str
+
+
+class CreateExperienceAttrs(
+    CreateResumeComponentRequiredAttrs, CreateIndexableAttr, total=False
+):
+    position: str
+    company_name: str
+    from_date: str
+    to_date: str
+
+
+############################ END experience ############################## noqa
+
+############################ skills ############################## noqa
+
+
+class SkillLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
+    description: str
+    resume_id: str
+
+
+class CreateSkillAttrs(
+    CreateResumeComponentRequiredAttrs, CreateIndexableAttr, total=False
+):
+    description: str
+
+
+############################ end skills ############################## noqa
+
+############################ ratable ################################# noqa
+
+
+class Ratable(UUID_IdLike, TimestampLike, Protocol):
+    description: str
+    level: str
+    owner_id: str
+
+
+class CreateRatableRequiredAttrs(TypedDict):
+    description: str
+    owner_id: str
+    user_id: str
+
+
+class CreateSpokenLanguageAttrs(
+    CreateResumeComponentRequiredAttrs, total=False
+):  # noqa
+    level: str
+
+
+############################ end ratable ############################## noqa
+
+############################ TEXT ONLY LIKE ############################## noqa
+
+
+class TextOnlyLike(UUID_IdLike, Protocol):
+    text: str
+    owner_id: str
+
+
+class CreateTextOnlyAttr(TypedDict):
+    text: str
+    owner_id: str
+
+
+############################ END TEST ONLY LIKE ####################### noqa
