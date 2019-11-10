@@ -5,8 +5,9 @@ import pytest
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import CreateResumeAttrs
 
+pytestmark = pytest.mark.django_db
 
-@pytest.mark.django_db
+
 def test_create_resume_success(
     graphql_client, create_resume_query, registered_user
 ):  # noqa
@@ -24,7 +25,6 @@ def test_create_resume_success(
     assert resume["userId"] == str(registered_user.id)
 
 
-@pytest.mark.django_db
 def test_create_resume_with_non_unique_title_succeeds(registered_user):
     title = "title 1"
     resume1 = ResumesLogic.create_resume(
@@ -40,14 +40,13 @@ def test_create_resume_with_non_unique_title_succeeds(registered_user):
     assert resume2.title.index(title) > -1
 
 
-@pytest.mark.django_db
 def test_create_personal_info_no_photo_succeeds(
     create_personal_info_query, graphql_client, user_and_resume_fixture
 ):  # noqa
     user, resume = user_and_resume_fixture
     resume_id = str(resume.id)
 
-    create_params = {"firstName": "kanmii", "resumeId": resume_id}  # noqa
+    create_params = {"firstName": "kanmii", "resumeId": resume_id}
 
     result = graphql_client.execute(
         create_personal_info_query,
@@ -61,7 +60,6 @@ def test_create_personal_info_no_photo_succeeds(
     assert personal_info["resumeId"] == resume_id
 
 
-@pytest.mark.django_db
 def test_create_personal_info_with_photo_succeeds(
     create_personal_info_query,
     graphql_client,

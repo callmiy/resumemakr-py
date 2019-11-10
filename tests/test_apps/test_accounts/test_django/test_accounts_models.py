@@ -14,7 +14,9 @@ from server.apps.accounts.accounts_interfaces import (
 )  # noqa
 
 
-@pytest.mark.django_db
+pytestmark = pytest.mark.django_db
+
+
 def test_register_with_password_succeeds(
     graphql_client: Client, user_registration_query: str, create_user_params
 ) -> None:  # noqa
@@ -32,7 +34,6 @@ def test_register_with_password_succeeds(
     assert registration["errors"] is None
 
 
-@pytest.mark.django_db
 def test_register_with_password_fails_cos_email_not_unique(
     graphql_client: Client,
     user_registration_query: str,
@@ -51,7 +52,6 @@ def test_register_with_password_fails_cos_email_not_unique(
     assert registration["user"] is None
 
 
-@pytest.mark.django_db
 def test_login_user_with_password_succeeds(
     login_query, graphql_client, registered_user, create_user_params
 ):
@@ -67,7 +67,6 @@ def test_login_user_with_password_succeeds(
     assert type(user["jwt"]) == str
 
 
-@pytest.mark.django_db
 def test_login_user_with_password_fails_cos_wrong_password(
     login_query, graphql_client, registered_user, create_user_params
 ):  # noqa
@@ -82,7 +81,6 @@ def test_login_user_with_password_fails_cos_wrong_password(
     assert error == USER_LOGIN_ERROR_MESSAGE
 
 
-@pytest.mark.django_db
 def test_login_user_with_password_fails_cos_user_not_found(
     registered_user, create_user_params
 ):

@@ -79,7 +79,7 @@ DATABASES = {
         "PORT": config("DJANGO_DATABASE_PORT", cast=int),
         "CONN_MAX_AGE": config("CONN_MAX_AGE", cast=int, default=60),
         "OPTIONS": {"connect_timeout": 10},
-        "TEST": {"NAME": config("POSTGRES_DB")},
+        "TEST": {"NAME": "resumemakr_test"},
     }
 }
 
@@ -162,7 +162,7 @@ PASSWORD_HASHERS = [
 # https://docs.djangoproject.com/en/2.2/topics/security/
 
 SESSION_COOKIE_HTTPONLY = True
-# CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True # <- blocking graphiql
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 

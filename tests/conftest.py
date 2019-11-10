@@ -47,22 +47,13 @@ def test_root():
 
 
 @pytest.fixture(autouse=True)
-def _media_root(settings, test_root):
+def _modify_django_settings(settings, test_root):
     """Forces django to save media files into custom location."""
+    """Deactivates security backend from Axes app."""
     settings.MEDIA_ROOT = test_root.joinpath("media")
-
-
-@pytest.fixture(autouse=True)
-def _password_hashers(settings):
-    """Forces django to use fast password hashers for tests."""
     settings.PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher"
     ]  # noqa
-
-
-@pytest.fixture(autouse=True)
-def _auth_backends(settings):
-    """Deactivates security backend from Axes app."""
     settings.AUTHENTICATION_BACKENDS = (
         "django.contrib.auth.backends.ModelBackend",
     )  # noqa
@@ -92,7 +83,7 @@ def create_user_params():
 
 
 @pytest.fixture()
-def registered_user(create_user_params):
+def registered_user(db, create_user_params):
     user_credential = AccountsLogic.register_user_with_password(
         create_user_params
     )  # noqa
