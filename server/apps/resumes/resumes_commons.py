@@ -46,6 +46,13 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     ) -> CreateExperienceReturnType:  # noqa
         pass
 
+    @staticmethod
+    @abstractmethod
+    def create_education(
+        params: CreateEducationAttrs
+    ) -> CreateEducationReturnType:  # noqa
+        pass
+
 
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)
@@ -149,6 +156,8 @@ class CreateEducationAttrs(
     from_date: str
     to_date: str
 
+
+CreateEducationReturnType = Union[EducationLike, CreateResumeComponentErrors]
 
 ############################ END EDUCATION ############################ noqa
 

@@ -6,7 +6,12 @@ from typing import Tuple, cast
 from django.conf import settings
 from django.db import IntegrityError, transaction
 
-from server.apps.resumes.models import Experience, PersonalInfo, Resume
+from server.apps.resumes.models import (
+    Experience,
+    PersonalInfo,
+    Resume,
+    Education,
+)  # noqa
 from server.apps.resumes.resumes_commons import (
     CreateResumeAttrs,
     CreateExperienceAttrs,
@@ -22,6 +27,9 @@ from server.apps.resumes.resumes_commons import (
     ResumesLogicInterface,
     uniquify_resume_title,
     ExperienceLike,
+    EducationLike,
+    CreateEducationAttrs,
+    CreateEducationReturnType,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -113,5 +121,22 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
             experience = Experience(**rest_params, resume=cast(Resume, resume))  # noqa
             return cast(ExperienceLike, experience)
+        except KeyError:
+            return CreateResumeComponentErrors(error="something went wrong")
+
+    @staticmethod
+    def create_education(
+        params: CreateEducationAttrs
+    ) -> CreateEducationReturnType:  # noqa
+        try:
+            resume, rest_params = ResumesDjangoLogic._get_resume_from_user_and_resume_ids(  # noqa
+                params
+            )  # noqa
+
+            if resume is None:
+                return CreateResumeComponentErrors(resume="not found")
+
+            education = Education(**rest_params, resume=cast(Resume, resume))  # noqa
+            return cast(EducationLike, education)
         except KeyError:
             return CreateResumeComponentErrors(error="something went wrong")

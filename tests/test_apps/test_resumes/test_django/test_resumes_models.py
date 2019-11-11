@@ -11,6 +11,7 @@ from server.apps.resumes.resumes_commons import (
     CreatePersonalInfoAttrs,
     CreateResumeComponentErrors,
     CreateExperienceAttrs,
+    CreateEducationAttrs,
 )
 
 pytestmark = pytest.mark.django_db
@@ -163,5 +164,50 @@ def test_create_experience_fails_due_to_exception():
 
     result = cast(
         CreateResumeComponentErrors, ResumesLogic.create_experience(attrs)
+    )  # noqa
+    assert type(result.error) == str
+
+
+############################ title ############################## noqa
+def test_create_education_succeeds(
+    graphql_client, create_education_query, user_and_resume_fixture
+):
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    params = {"resumeId": resume_id, "index": 1, "school": "school 1"}
+
+    result = graphql_client.execute(
+        create_education_query,
+        variables={"input": params},
+        context=Context(current_user=user),
+    )
+
+    education = result["data"]["createEducation"]["education"]
+    assert education["resumeId"] == resume_id
+    assert education["index"] == 1
+
+
+def test_create_education_fails_cos_resume_not_found(
+    graphql_client, create_education_query, bogus_uuid
+):
+
+    params = {"resumeId": bogus_uuid, "index": 1, "school": "school 1"}
+
+    result = graphql_client.execute(
+        create_education_query,
+        variables={"input": params},
+        context=Context(current_user=BogusUser(id=bogus_uuid)),
+    )
+
+    errors = result["data"]["createEducation"]["errors"]
+    assert type(errors["resume"]) == str
+
+
+def test_create_education_fails_due_to_exception():
+    attrs = cast(CreateEducationAttrs, {})
+
+    result = cast(
+        CreateResumeComponentErrors, ResumesLogic.create_education(attrs)
     )  # noqa
     assert type(result.error) == str
