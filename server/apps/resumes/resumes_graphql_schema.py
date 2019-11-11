@@ -91,13 +91,13 @@ class PersonalInfoSuccess(ObjectType):
     personal_info = graphene.Field(PersonalInfo)
 
 
-class CreatePersonalInfoError(ObjectType):
+class ResumeChildErrors(ObjectType):
     resume = graphene.String()
     error = graphene.String()
 
 
 class CreatePersonalInfoErrors(ObjectType):
-    errors = graphene.Field(CreatePersonalInfoError)
+    errors = graphene.Field(ResumeChildErrors)
 
 
 class CreatePersonalInfoPayload(graphene.Union):
