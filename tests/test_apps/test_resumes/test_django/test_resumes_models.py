@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
+from typing import cast
 
 import pytest
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import CreateResumeAttrs
+from server.apps.resumes.resumes_commons import (
+    CreateResumeAttrs,
+    CreatePersonalInfoAttrs,
+    CreatePersonalInfoErrors,
+)
 
 pytestmark = pytest.mark.django_db
 
 Context = namedtuple("Context", ("current_user",))
+BogusUser = namedtuple("BogusUser", ("id",))
 
 
 def test_create_resume_succeeds(
@@ -91,3 +97,26 @@ def test_create_personal_info_with_photo_succeeds(
 
     assert photo.startswith(settings.MEDIA_URL)
     assert photo.endswith(".jpeg")
+
+
+def test_create_personal_info_fails_cos_resume_not_found(
+    create_personal_info_query, graphql_client, bogus_uuid
+):  # noqa
+
+    create_params = {"firstName": "kanmii", "resumeId": bogus_uuid}
+
+    result = graphql_client.execute(
+        create_personal_info_query,
+        variables={"input": create_params},
+        context=Context(current_user=BogusUser(id=bogus_uuid)),
+    )
+
+    assert type(result["data"]["createPersonalInfo"]["errors"]["resume"]) == str
+
+
+def test_create_personal_info_fails_due_to_exception():
+    attrs = cast(CreatePersonalInfoAttrs, {})
+    result = cast(
+        CreatePersonalInfoErrors, ResumesLogic.create_personal_info(attrs)
+    )  # noqa
+    assert type(result.error) == str

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from abc import ABCMeta, abstractmethod
 from time import time
-from typing import Tuple
+from typing import NamedTuple, Optional, Tuple, Union
 
 from mypy_extensions import TypedDict
 from typing_extensions import Protocol
@@ -31,12 +31,12 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @abstractmethod
     def create_personal_info(
         params: CreatePersonalInfoAttrs
-    ) -> PersonalInfoLike:  # noqa
+    ) -> CreatePersonalInfoReturnType:  # noqa
         pass
 
     @staticmethod
     @abstractmethod
-    def get_resume(params: GetResumeAttrs) -> ResumeLike:
+    def get_resume(params: GetResumeAttrs) -> MaybeResume:
         pass
 
 
@@ -72,6 +72,7 @@ class GetResumeAttrs(TypedDict):
     id: str
 
 
+MaybeResume = Optional[ResumeLike]
 ############################ END RESUME ############################## noqa
 
 
@@ -110,6 +111,14 @@ class CreatePersonalInfoAttrs(CreateResumeComponentRequiredAttrs, total=False):
     phone: str
     date_of_birth: str
     photo: str
+
+
+class CreatePersonalInfoErrors(NamedTuple):
+    resume: Optional[str] = None
+    error: Optional[str] = None
+
+
+CreatePersonalInfoReturnType = Union[PersonalInfoLike, CreatePersonalInfoErrors]
 
 
 ############################ END PERSONAL INFO ########################## noqa

@@ -30,7 +30,7 @@ AUTH_USER_KEY = "current_user"
 
 
 def put_user_context(next, root, info, **args):
-    if getattr(info.context, AUTH_USER_KEY, None):
+    if hasattr(info.context, AUTH_USER_KEY):
         return next(root, info, **args)
 
     authorization = info.context.headers.get("Authorization")

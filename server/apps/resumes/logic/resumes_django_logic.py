@@ -15,6 +15,9 @@ from server.apps.resumes.resumes_commons import (
     CreatePersonalInfoAttrs,
     PersonalInfoLike,
     GetResumeAttrs,
+    CreatePersonalInfoReturnType,
+    MaybeResume,
+    CreatePersonalInfoErrors,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -47,25 +50,34 @@ class ResumesDjangoLogic(ResumesLogicInterface):
             return cast(ResumeLike, resume)
 
     @staticmethod
-    def get_resume(params: GetResumeAttrs) -> ResumeLike:
-        return cast(ResumeLike, Resume.objects.get(**params))
+    def get_resume(params: GetResumeAttrs) -> MaybeResume:
+        try:
+            return cast(ResumeLike, Resume.objects.get(**params))
+        except Resume.DoesNotExist:
+            return None
 
     @staticmethod
     def create_personal_info(
         params: CreatePersonalInfoAttrs
-    ) -> PersonalInfoLike:  # noqa
-        resume_id = params.pop("resume_id")  # type: ignore
-        user_id = params.pop("user_id")  # type: ignore
+    ) -> CreatePersonalInfoReturnType:  # noqa
+        try:
+            resume_id = params.pop("resume_id")  # type: ignore
+            user_id = params.pop("user_id")  # type: ignore
 
-        resume = ResumesDjangoLogic.get_resume(
-            GetResumeAttrs(user_id=user_id, id=resume_id)
-        )
+            resume = ResumesDjangoLogic.get_resume(
+                GetResumeAttrs(user_id=user_id, id=resume_id)
+            )
 
-        photo = params.get("photo")
+            if resume is None:
+                return CreatePersonalInfoErrors(resume="not found")
 
-        if photo is not None:
-            url, _ = ResumesDjangoLogic.save_data_url_encoded_file(photo)
-            params["photo"] = url
+            photo = params.get("photo")
 
-        personal_info = PersonalInfo(**params, resume=cast(Resume, resume))
-        return cast(PersonalInfoLike, personal_info)
+            if photo is not None:
+                url, _ = ResumesDjangoLogic.save_data_url_encoded_file(photo)
+                params["photo"] = url
+
+            personal_info = PersonalInfo(**params, resume=cast(Resume, resume))
+            return cast(PersonalInfoLike, personal_info)
+        except KeyError:
+            return CreatePersonalInfoErrors(error="something went wrong")

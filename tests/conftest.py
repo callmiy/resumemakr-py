@@ -203,10 +203,17 @@ def create_personal_info_query(personal_info_fragment):
                 }}
 
                 ... on CreatePersonalInfoErrors {{
-                    errors
+                    errors {{
+                        resume
+                    }}
                 }}
             }}
         }}
 
         {personal_info_fragment}
     """
+
+
+@pytest.fixture()
+def bogus_uuid():
+    return "746d6853-f7b4-4525-bfd0-37af7370c7cb"

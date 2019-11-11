@@ -89,11 +89,8 @@ def test_login_user_with_password_fails_cos_user_not_found(
 
 def test_user_by_id_succeeds(registered_user):
     user = AccountsLogic.get_user_by_id(registered_user.id)
-    assert user.email == registered_user.email
+    assert user.email == registered_user.email  # type: ignore
 
 
-def test_user_by_id_returns_none_cos_user_does_not_exist():
-    assert (
-        AccountsLogic.get_user_by_id("746d6853-f7b4-4525-bfd0-37af7370c7cb")
-        is None  # noqa
-    )
+def test_user_by_id_returns_none_cos_user_does_not_exist(bogus_uuid):
+    assert AccountsLogic.get_user_by_id(bogus_uuid) is None

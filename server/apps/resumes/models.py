@@ -28,14 +28,15 @@ class Resume(models.Model):  # type: ignore[disallow_any_explicit]
 
 class Education(models.Model):
     id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    school = models.CharField(max_length=255, blank=True, null=True)
-    course = models.CharField(max_length=255, blank=True, null=True)
-    from_date = models.CharField(max_length=255, blank=True, null=True)
-    to_date = models.CharField(max_length=255, blank=True, null=True)
     index = models.IntegerField()
     resume = models.ForeignKey(
         Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
+
+    school = models.CharField(max_length=255, blank=True, null=True)
+    course = models.CharField(max_length=255, blank=True, null=True)
+    from_date = models.CharField(max_length=255, blank=True, null=True)
+    to_date = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         db_table = "education"
@@ -133,12 +134,12 @@ class ResumeHobby(models.Model):
 
 class Skill(models.Model):
     id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    description = models.TextField(blank=True, null=True)
     index = models.IntegerField()
-
     resume = models.ForeignKey(
         Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
+
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "skills"

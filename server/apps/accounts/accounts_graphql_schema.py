@@ -9,10 +9,7 @@ from server.apps.accounts.accounts_commons import (
 )
 from server.apps.accounts.logic import AccountsLogic, user_to_jwt
 
-
-class TimestampsInterface(graphene.Interface):
-    inserted_at = graphene.DateTime(required=True)
-    updated_at = graphene.DateTime(required=True)
+from server.apps.graphql_schema_commons import TimestampsInterface
 
 
 class User(ObjectType):
