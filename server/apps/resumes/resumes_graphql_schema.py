@@ -14,6 +14,7 @@ from server.apps.resumes.resumes_commons import (  # noqa
     CreateResumeComponentErrors,
     CreateExperienceAttrs,
     CreateEducationAttrs,
+    CreateSkillAttrs,
 )
 
 
@@ -253,6 +254,41 @@ class Skill(ObjectType):
     description = graphene.String()
 
 
+class CreateSkillInput(CreateIndexable, graphene.InputObjectType):
+    resume_id = graphene.ID(required=True)
+    description = graphene.String()
+
+
+class SkillSuccess(ObjectType):
+    skill = graphene.Field(Skill)
+
+
+class CreateSkillErrors(ObjectType):
+    errors = graphene.Field(ResumeChildErrors)
+
+
+class CreateSkillPayload(graphene.Union):
+    class Meta:
+        types = (SkillSuccess, CreateSkillErrors)
+
+
+class CreateSkillMutation(graphene.Mutation):
+    class Arguments:
+        input = CreateSkillInput(required=True)
+
+    Output = CreateSkillPayload
+
+    def mutate(self, info, **inputs):
+        user = info.context.current_user
+        params = dict(**inputs["input"], user_id=user.id)
+        result = ResumesLogic.create_skill(cast(CreateSkillAttrs, params))
+
+        if isinstance(result, CreateResumeComponentErrors):
+            return CreateSkillErrors(errors=result)
+
+        return SkillSuccess(skill=result)
+
+
 class Ratable(ObjectType):
     id = graphene.ID(required=True)
     owner_id = graphene.ID(required=True)
@@ -265,3 +301,4 @@ class ResumesCombinedMutation(ObjectType):
     create_personal_info = CreatePersonalInfoMutation.Field()
     create_experience = CreateExperienceMutation.Field()
     create_education = CreateEducationMutation.Field()
+    create_skill = CreateSkillMutation.Field()

@@ -53,6 +53,11 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     ) -> CreateEducationReturnType:  # noqa
         pass
 
+    @staticmethod
+    @abstractmethod
+    def create_skill(params: CreateSkillAttrs) -> CreateSkillReturnType:
+        pass
+
 
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)
@@ -198,6 +203,8 @@ class CreateSkillAttrs(
 ):
     description: str
 
+
+CreateSkillReturnType = Union[SkillLike, CreateResumeComponentErrors]
 
 ############################ end skills ############################## noqa
 

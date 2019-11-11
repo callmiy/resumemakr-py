@@ -7,29 +7,33 @@ from django.conf import settings
 from django.db import IntegrityError, transaction
 
 from server.apps.resumes.models import (
+    Education,
     Experience,
     PersonalInfo,
     Resume,
-    Education,
+    Skill,
 )  # noqa
 from server.apps.resumes.resumes_commons import (
-    CreateResumeAttrs,
+    CreateEducationAttrs,
+    CreateEducationReturnType,
     CreateExperienceAttrs,
     CreateExperienceReturnType,
     CreatePersonalInfoAttrs,
     CreatePersonalInfoReturnType,
+    CreateResumeAttrs,
     CreateResumeComponentErrors,
     CreateResumeComponentRequiredAttrs,
+    EducationLike,
+    ExperienceLike,
     GetResumeAttrs,
     MaybeResume,
     PersonalInfoLike,
     ResumeLike,
     ResumesLogicInterface,
     uniquify_resume_title,
-    ExperienceLike,
-    EducationLike,
-    CreateEducationAttrs,
-    CreateEducationReturnType,
+    SkillLike,
+    CreateSkillAttrs,
+    CreateSkillReturnType,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -138,5 +142,20 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
             education = Education(**rest_params, resume=cast(Resume, resume))  # noqa
             return cast(EducationLike, education)
+        except KeyError:
+            return CreateResumeComponentErrors(error="something went wrong")
+
+    @staticmethod
+    def create_skill(params: CreateSkillAttrs) -> CreateSkillReturnType:
+        try:
+            resume, rest_params = ResumesDjangoLogic._get_resume_from_user_and_resume_ids(  # noqa
+                params
+            )  # noqa
+
+            if resume is None:
+                return CreateResumeComponentErrors(resume="not found")
+
+            skill = Skill(**rest_params, resume=cast(Resume, resume))  # noqa
+            return cast(SkillLike, skill)
         except KeyError:
             return CreateResumeComponentErrors(error="something went wrong")

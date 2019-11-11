@@ -26,6 +26,7 @@ resume_fragment_name = "ResumeFragment"
 personal_info_fragment_name = "PersonalInfoFragment"
 experience_fragment_name = "ExperienceFragment"
 education_fragment_name = "EducationFragment"
+skill_fragment_name = "SkillFragment"
 
 
 timestamps_fragment = """
@@ -300,4 +301,42 @@ def create_education_query(education_fragment):
             }}
         }}
         {education_fragment}
+    """
+
+
+@pytest.fixture()
+def skill_fragment():
+    return f"""
+        fragment {skill_fragment_name} on Skill {{
+           id
+           resumeId
+           index
+           description
+        }}
+    """
+
+
+@pytest.fixture()
+def create_skill_query(skill_fragment):
+    return f"""
+        mutation CreateSkill($input: CreateSkillInput!) {{
+            createSkill(input: $input) {{
+
+                {typename}
+
+                ... on SkillSuccess {{
+                    skill {{
+                        ...{skill_fragment_name}
+                    }}
+                }}
+
+                ... on CreateSkillErrors {{
+                    errors {{
+                        resume
+                        error
+                    }}
+                }}
+            }}
+        }}
+        {skill_fragment}
     """
