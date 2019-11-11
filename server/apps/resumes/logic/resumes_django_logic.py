@@ -13,6 +13,7 @@ from server.apps.resumes.models import (
     Resume,
     Skill,
     SpokenLanguage,
+    SupplementarySkill,
 )  # noqa
 from server.apps.resumes.resumes_commons import (
     CreateEducationAttrs,
@@ -185,6 +186,13 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
         tag = RatableEnumType(params.pop("tag"))  # type: ignore
 
+        print(
+            "\n\nlogging starts--------------------------------------------------\n\n",  # noqa
+            "tag\n",
+            tag,
+            "\n\nlogging ends-------------------------------------\n\n",  # noqa
+        )
+
         try:
             resume, rest_params = ResumesDjangoLogic._get_resume_from_user_and_owner_ids(  # noqa
                 params
@@ -193,9 +201,15 @@ class ResumesDjangoLogic(ResumesLogicInterface):
             if resume is None:
                 return CreateRatableErrorsType(owner="not found", tag=tag)
 
-            result = SpokenLanguage(**rest_params, owner=cast(Resume, resume))
+            if tag == RatableEnumType.spoken_language:
+                cls = SpokenLanguage
+
+            elif tag == RatableEnumType.supplementary_skill:
+                cls = SupplementarySkill  # type: ignore
+
+            result = cls(**rest_params, owner=cast(Resume, resume))
             ratable = cast(Ratable, result)
-            ratable.tag = RatableEnumType.spoken_language
+            ratable.tag = tag
             return ratable
         except KeyError:
             return CreateRatableErrorsType(

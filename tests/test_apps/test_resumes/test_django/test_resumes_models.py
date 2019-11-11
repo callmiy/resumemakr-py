@@ -258,9 +258,6 @@ def test_create_skill_fails_due_to_exception():
     assert type(result.error) == str
 
 
-############################ title ############################## noqa
-
-
 def test_create_spoken_languages_succeeds(
     graphql_client, create_ratable_query, user_and_resume_fixture
 ):
@@ -313,3 +310,60 @@ def test_create_spoken_language_fails_due_to_exception():
     result = cast(CreateRatableErrorsType, ResumesLogic.create_ratable(attrs))
     assert type(result.error) == str
     assert result.tag == RatableEnumType.spoken_language
+
+
+############################ title ############################## noqa
+
+
+def test_create_supplementary_skill_succeeds(
+    graphql_client, create_ratable_query, user_and_resume_fixture
+):
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    params = {
+        "ownerId": resume_id,
+        "description": "d 1",
+        "tag": RatableEnumType.supplementary_skill.name,
+    }
+
+    result = graphql_client.execute(
+        create_ratable_query,
+        variables={"input": params},
+        context=Context(current_user=user),
+    )
+
+    spoken_language = result["data"]["createRatable"]["ratable"]
+    assert spoken_language["ownerId"] == resume_id
+    assert spoken_language["tag"] == RatableEnumType.supplementary_skill.name
+
+
+def test_create_supplementary_skill_fails_cos_resume_not_found(
+    graphql_client, create_ratable_query, bogus_uuid
+):
+
+    params = {
+        "ownerId": bogus_uuid,
+        "description": "d 1",
+        "tag": RatableEnumType.supplementary_skill.name,
+    }
+
+    result = graphql_client.execute(
+        create_ratable_query,
+        variables={"input": params},
+        context=Context(current_user=BogusUser(id=bogus_uuid)),
+    )
+
+    errors = result["data"]["createRatable"]["errors"]
+    assert type(errors["owner"]) == str
+    assert errors["tag"] == RatableEnumType.supplementary_skill.name
+
+
+def test_create_supplementary_skill_fails_due_to_exception():
+    attrs = cast(
+        CreateRatableAttrs, {"tag": RatableEnumType.supplementary_skill.name}
+    )  # noqa
+
+    result = cast(CreateRatableErrorsType, ResumesLogic.create_ratable(attrs))
+    assert type(result.error) == str
+    assert result.tag == RatableEnumType.supplementary_skill
