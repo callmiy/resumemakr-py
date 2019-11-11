@@ -6,18 +6,22 @@ from typing import Tuple, cast
 from django.conf import settings
 from django.db import IntegrityError, transaction
 
-from server.apps.resumes.models import Resume, PersonalInfo
+from server.apps.resumes.models import Experience, PersonalInfo, Resume
 from server.apps.resumes.resumes_commons import (
-    CreateResumeAttrs,  # noqa
+    CreateResumeAttrs,
+    CreateExperienceAttrs,
+    CreateExperienceReturnType,
+    CreatePersonalInfoAttrs,
+    CreatePersonalInfoReturnType,
+    CreateResumeComponentErrors,
+    CreateResumeComponentRequiredAttrs,
+    GetResumeAttrs,
+    MaybeResume,
+    PersonalInfoLike,
     ResumeLike,
     ResumesLogicInterface,
     uniquify_resume_title,
-    CreatePersonalInfoAttrs,
-    PersonalInfoLike,
-    GetResumeAttrs,
-    CreatePersonalInfoReturnType,
-    MaybeResume,
-    CreatePersonalInfoErrors,
+    ExperienceLike,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -50,6 +54,20 @@ class ResumesDjangoLogic(ResumesLogicInterface):
             return cast(ResumeLike, resume)
 
     @staticmethod
+    def _get_resume_from_user_and_resume_ids(
+        params: CreateResumeComponentRequiredAttrs
+    ) -> Tuple[MaybeResume, CreateResumeComponentRequiredAttrs]:
+        resume_id = params.pop("resume_id")  # type: ignore
+        user_id = params.pop("user_id")  # type: ignore
+
+        return (
+            ResumesDjangoLogic.get_resume(
+                GetResumeAttrs(user_id=user_id, id=resume_id)
+            ),
+            params,
+        )
+
+    @staticmethod
     def get_resume(params: GetResumeAttrs) -> MaybeResume:
         try:
             return cast(ResumeLike, Resume.objects.get(**params))
@@ -61,15 +79,12 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         params: CreatePersonalInfoAttrs
     ) -> CreatePersonalInfoReturnType:  # noqa
         try:
-            resume_id = params.pop("resume_id")  # type: ignore
-            user_id = params.pop("user_id")  # type: ignore
-
-            resume = ResumesDjangoLogic.get_resume(
-                GetResumeAttrs(user_id=user_id, id=resume_id)
-            )
+            resume, rest_params = ResumesDjangoLogic._get_resume_from_user_and_resume_ids(  # noqa
+                params
+            )  # noqa
 
             if resume is None:
-                return CreatePersonalInfoErrors(resume="not found")
+                return CreateResumeComponentErrors(resume="not found")
 
             photo = params.get("photo")
 
@@ -77,7 +92,26 @@ class ResumesDjangoLogic(ResumesLogicInterface):
                 url, _ = ResumesDjangoLogic.save_data_url_encoded_file(photo)
                 params["photo"] = url
 
-            personal_info = PersonalInfo(**params, resume=cast(Resume, resume))
+            personal_info = PersonalInfo(
+                **rest_params, resume=cast(Resume, resume)
+            )  # noqa
             return cast(PersonalInfoLike, personal_info)
         except KeyError:
-            return CreatePersonalInfoErrors(error="something went wrong")
+            return CreateResumeComponentErrors(error="something went wrong")
+
+    @staticmethod
+    def create_experience(
+        params: CreateExperienceAttrs
+    ) -> CreateExperienceReturnType:  # noqa
+        try:
+            resume, rest_params = ResumesDjangoLogic._get_resume_from_user_and_resume_ids(  # noqa
+                params
+            )  # noqa
+
+            if resume is None:
+                return CreateResumeComponentErrors(resume="not found")
+
+            experience = Experience(**rest_params, resume=cast(Resume, resume))  # noqa
+            return cast(ExperienceLike, experience)
+        except KeyError:
+            return CreateResumeComponentErrors(error="something went wrong")

@@ -21,13 +21,10 @@ from server.apps.resumes.logic import ResumesLogic
 from server.file_upload_utils import data_url_encoded_string_delimiter
 
 typename = "__typename"
-
 user_fragment_name = "UserFragment"
-
-
 resume_fragment_name = "ResumeFragment"
-
 personal_info_fragment_name = "PersonalInfoFragment"
+experience_fragment_name = "ExperienceFragment"
 
 
 timestamps_fragment = """
@@ -51,6 +48,11 @@ def data_url_encoded_file(settings, test_root):
     with open(test_root.joinpath("test-files/dog.jpeg"), "rb") as dog_file:
         dog_string = base64.urlsafe_b64encode(dog_file.read()).decode()
         return f"data:image/jpeg{data_url_encoded_string_delimiter}{dog_string}"
+
+
+@pytest.fixture()
+def bogus_uuid():
+    return "746d6853-f7b4-4525-bfd0-37af7370c7cb"
 
 
 @pytest.fixture()
@@ -219,5 +221,41 @@ def create_personal_info_query(personal_info_fragment):
 
 
 @pytest.fixture()
-def bogus_uuid():
-    return "746d6853-f7b4-4525-bfd0-37af7370c7cb"
+def experience_fragment():
+    return f"""
+        fragment {experience_fragment_name} on Experience {{
+           id
+           resumeId
+           index
+           position
+           companyName
+           fromDate
+           toDate
+        }}
+    """
+
+
+@pytest.fixture()
+def create_experience_query(experience_fragment):
+    return f"""
+        mutation CreateExperience($input: CreateExperienceInput!) {{
+            createExperience(input: $input) {{
+
+                {typename}
+
+                ... on ExperienceSuccess {{
+                    experience {{
+                        ...{experience_fragment_name}
+                    }}
+                }}
+
+                ... on CreateExperienceErrors {{
+                    errors {{
+                        resume
+                        error
+                    }}
+                }}
+            }}
+        }}
+        {experience_fragment}
+    """

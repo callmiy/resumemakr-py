@@ -9,7 +9,8 @@ from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (
     CreateResumeAttrs,
     CreatePersonalInfoAttrs,
-    CreatePersonalInfoErrors,
+    CreateResumeComponentErrors,
+    CreateExperienceAttrs,
 )
 
 pytestmark = pytest.mark.django_db
@@ -117,6 +118,50 @@ def test_create_personal_info_fails_cos_resume_not_found(
 def test_create_personal_info_fails_due_to_exception():
     attrs = cast(CreatePersonalInfoAttrs, {})
     result = cast(
-        CreatePersonalInfoErrors, ResumesLogic.create_personal_info(attrs)
+        CreateResumeComponentErrors, ResumesLogic.create_personal_info(attrs)
+    )  # noqa
+    assert type(result.error) == str
+
+
+def test_create_experience_succeeds(
+    graphql_client, create_experience_query, user_and_resume_fixture
+):
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    params = {"resumeId": resume_id, "index": 1, "position": "pos 1"}
+
+    result = graphql_client.execute(
+        create_experience_query,
+        variables={"input": params},
+        context=Context(current_user=user),
+    )
+
+    experience = result["data"]["createExperience"]["experience"]
+    assert experience["resumeId"] == resume_id
+    assert experience["index"] == 1
+
+
+def test_create_experience_fails_cos_resume_not_found(
+    graphql_client, create_experience_query, bogus_uuid
+):
+
+    params = {"resumeId": bogus_uuid, "index": 1, "position": "pos 1"}
+
+    result = graphql_client.execute(
+        create_experience_query,
+        variables={"input": params},
+        context=Context(current_user=BogusUser(id=bogus_uuid)),
+    )
+
+    errors = result["data"]["createExperience"]["errors"]
+    assert type(errors["resume"]) == str
+
+
+def test_create_experience_fails_due_to_exception():
+    attrs = cast(CreateExperienceAttrs, {})
+
+    result = cast(
+        CreateResumeComponentErrors, ResumesLogic.create_experience(attrs)
     )  # noqa
     assert type(result.error) == str

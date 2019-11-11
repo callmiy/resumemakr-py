@@ -39,6 +39,13 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     def get_resume(params: GetResumeAttrs) -> MaybeResume:
         pass
 
+    @staticmethod
+    @abstractmethod
+    def create_experience(
+        params: CreateExperienceAttrs
+    ) -> CreateExperienceReturnType:  # noqa
+        pass
+
 
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)
@@ -113,12 +120,14 @@ class CreatePersonalInfoAttrs(CreateResumeComponentRequiredAttrs, total=False):
     photo: str
 
 
-class CreatePersonalInfoErrors(NamedTuple):
+class CreateResumeComponentErrors(NamedTuple):
     resume: Optional[str] = None
     error: Optional[str] = None
 
 
-CreatePersonalInfoReturnType = Union[PersonalInfoLike, CreatePersonalInfoErrors]
+CreatePersonalInfoReturnType = Union[
+    PersonalInfoLike, CreateResumeComponentErrors
+]  # noqa
 
 
 ############################ END PERSONAL INFO ########################## noqa
@@ -162,6 +171,8 @@ class CreateExperienceAttrs(
     from_date: str
     to_date: str
 
+
+CreateExperienceReturnType = Union[ExperienceLike, CreateResumeComponentErrors]
 
 ############################ END experience ############################## noqa
 

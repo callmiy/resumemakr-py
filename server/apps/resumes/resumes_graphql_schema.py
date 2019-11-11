@@ -11,7 +11,8 @@ from server.apps.resumes.resumes_commons import (  # noqa
     PHOTO_ALREADY_UPLOADED,
     CreatePersonalInfoAttrs,
     CreateResumeAttrs,
-    CreatePersonalInfoErrors as CreatePersonalInfoErrorsType,
+    CreateResumeComponentErrors,
+    CreateExperienceAttrs,
 )
 
 
@@ -119,7 +120,7 @@ class CreatePersonalInfoMutation(graphene.Mutation):
             cast(CreatePersonalInfoAttrs, params)
         )
 
-        if isinstance(result, CreatePersonalInfoErrorsType):
+        if isinstance(result, CreateResumeComponentErrors):
             return CreatePersonalInfoErrors(errors=result)
 
         return PersonalInfoSuccess(personal_info=result)
@@ -154,12 +155,44 @@ class Experience(ObjectType):
     to_date = graphene.String()
 
 
-class CreateExperience(CreateIndexable, graphene.InputObjectType):
+class CreateExperienceInput(CreateIndexable, graphene.InputObjectType):
     resume_id = graphene.ID(required=True)
+    position = graphene.String()
+    company_name = graphene.String()
+    from_date = graphene.String()
+    to_date = graphene.String()
 
 
 class ExperienceSuccess(ObjectType):
     experience = graphene.Field(Experience)
+
+
+class CreateExperienceErrors(ObjectType):
+    errors = graphene.Field(ResumeChildErrors)
+
+
+class CreateExperiencePayload(graphene.Union):
+    class Meta:
+        types = (ExperienceSuccess, CreateExperienceErrors)
+
+
+class CreateExperienceMutation(graphene.Mutation):
+    class Arguments:
+        input = CreateExperienceInput(required=True)
+
+    Output = CreateExperiencePayload
+
+    def mutate(self, info, **inputs):
+        user = info.context.current_user
+        params = dict(**inputs["input"], user_id=user.id)
+        result = ResumesLogic.create_experience(
+            cast(CreateExperienceAttrs, params)
+        )  # noqa
+
+        if isinstance(result, CreateResumeComponentErrors):
+            return CreateExperienceErrors(errors=result)
+
+        return ExperienceSuccess(experience=result)
 
 
 class Education(ObjectType):
@@ -189,3 +222,4 @@ class Ratable(ObjectType):
 class ResumesCombinedMutation(ObjectType):
     create_resume = CreateResumeMutation.Field()
     create_personal_info = CreatePersonalInfoMutation.Field()
+    create_experience = CreateExperienceMutation.Field()
