@@ -205,6 +205,7 @@ def create_personal_info_query(personal_info_fragment):
                 ... on CreatePersonalInfoErrors {{
                     errors {{
                         resume
+                        error
                     }}
                 }}
             }}

@@ -93,6 +93,7 @@ class PersonalInfoSuccess(ObjectType):
 
 class CreatePersonalInfoError(ObjectType):
     resume = graphene.String()
+    error = graphene.String()
 
 
 class CreatePersonalInfoErrors(ObjectType):
