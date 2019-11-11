@@ -24,17 +24,6 @@ typename = "__typename"
 
 user_fragment_name = "UserFragment"
 
-user_fragment = f"""
-      fragment {user_fragment_name} on User {{
-            id
-            name
-            email
-            jwt
-            insertedAt
-            updatedAt
-      }}
-    """
-
 
 resume_fragment_name = "ResumeFragment"
 
@@ -92,7 +81,21 @@ def user_and_resume_fixture(registered_user):
 
 
 @pytest.fixture()
-def user_registration_query():
+def user_fragment():
+    return f"""
+      fragment {user_fragment_name} on User {{
+            id
+            name
+            email
+            jwt
+            insertedAt
+            updatedAt
+      }}
+    """
+
+
+@pytest.fixture()
+def user_registration_query(user_fragment):
 
     return f"""
         mutation RegisterUser($input: RegistrationInput!) {{
@@ -113,7 +116,7 @@ def user_registration_query():
 
 
 @pytest.fixture()
-def login_query():
+def login_query(user_fragment):
     return f"""
         mutation LoginUser($input: LoginInput!) {{
             login(input: $input) {{
