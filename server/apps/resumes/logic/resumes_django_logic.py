@@ -12,6 +12,7 @@ from server.apps.resumes.models import (
     PersonalInfo,
     Resume,
     Skill,
+    SpokenLanguage,
 )  # noqa
 from server.apps.resumes.resumes_commons import (
     CreateEducationAttrs,
@@ -34,6 +35,12 @@ from server.apps.resumes.resumes_commons import (
     SkillLike,
     CreateSkillAttrs,
     CreateSkillReturnType,
+    CreateRatableAttrs,
+    CreateRatableReturnType,
+    Ratable,
+    RatableEnumType,
+    CreateRatableRequiredAttrs,
+    CreateRatableErrorsType,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -70,6 +77,20 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         params: CreateResumeComponentRequiredAttrs
     ) -> Tuple[MaybeResume, CreateResumeComponentRequiredAttrs]:
         resume_id = params.pop("resume_id")  # type: ignore
+        user_id = params.pop("user_id")  # type: ignore
+
+        return (
+            ResumesDjangoLogic.get_resume(
+                GetResumeAttrs(user_id=user_id, id=resume_id)
+            ),
+            params,
+        )
+
+    @staticmethod
+    def _get_resume_from_user_and_owner_ids(
+        params: CreateRatableRequiredAttrs
+    ) -> Tuple[MaybeResume, CreateRatableRequiredAttrs]:
+        resume_id = params.pop("owner_id")  # type: ignore
         user_id = params.pop("user_id")  # type: ignore
 
         return (
@@ -159,3 +180,24 @@ class ResumesDjangoLogic(ResumesLogicInterface):
             return cast(SkillLike, skill)
         except KeyError:
             return CreateResumeComponentErrors(error="something went wrong")
+
+    @staticmethod
+    def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
+        tag = RatableEnumType(params.pop("tag"))  # type: ignore
+
+        try:
+            resume, rest_params = ResumesDjangoLogic._get_resume_from_user_and_owner_ids(  # noqa
+                params
+            )  # noqa
+
+            if resume is None:
+                return CreateRatableErrorsType(owner="not found", tag=tag)
+
+            result = SpokenLanguage(**rest_params, owner=cast(Resume, resume))
+            ratable = cast(Ratable, result)
+            ratable.tag = RatableEnumType.spoken_language
+            return ratable
+        except KeyError:
+            return CreateRatableErrorsType(
+                error="something went wrong", tag=tag
+            )  # noqa

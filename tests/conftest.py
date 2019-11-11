@@ -27,6 +27,7 @@ personal_info_fragment_name = "PersonalInfoFragment"
 experience_fragment_name = "ExperienceFragment"
 education_fragment_name = "EducationFragment"
 skill_fragment_name = "SkillFragment"
+ratable_fragment_name = "RatableFragment"
 
 
 timestamps_fragment = """
@@ -339,4 +340,44 @@ def create_skill_query(skill_fragment):
             }}
         }}
         {skill_fragment}
+    """
+
+
+@pytest.fixture()
+def ratable_fragment():
+    return f"""
+        fragment {ratable_fragment_name} on Ratable {{
+           id
+           ownerId
+           description
+           tag
+           level
+        }}
+    """
+
+
+@pytest.fixture()
+def create_ratable_query(ratable_fragment):
+    return f"""
+        mutation CreateRatable($input: CreateRatableInput!) {{
+            createRatable(input: $input) {{
+
+                {typename}
+
+                ... on RatableSuccess {{
+                    ratable {{
+                        ...{ratable_fragment_name}
+                    }}
+                }}
+
+                ... on CreateRatableErrors {{
+                    errors {{
+                        owner
+                        error
+                        tag
+                    }}
+                }}
+            }}
+        }}
+        {ratable_fragment}
     """

@@ -15,6 +15,9 @@ from server.apps.resumes.resumes_commons import (  # noqa
     CreateExperienceAttrs,
     CreateEducationAttrs,
     CreateSkillAttrs,
+    RatableEnumType,
+    CreateRatableAttrs,
+    CreateRatableErrorsType,
 )
 
 
@@ -289,11 +292,58 @@ class CreateSkillMutation(graphene.Mutation):
         return SkillSuccess(skill=result)
 
 
+RatableEnum = graphene.Enum.from_enum(RatableEnumType)
+
+
 class Ratable(ObjectType):
     id = graphene.ID(required=True)
     owner_id = graphene.ID(required=True)
     description = graphene.String(required=True)
+    tag = graphene.Field(RatableEnum, required=True)
     level = graphene.String()
+
+
+class RatableSuccess(ObjectType):
+    ratable = graphene.Field(Ratable)
+
+
+class CreateRatableInput(graphene.InputObjectType):
+    owner_id = graphene.ID(required=True)
+    description = graphene.String(required=True)
+    tag = graphene.Field(RatableEnum, required=True)
+    level = graphene.String()
+
+
+class CreateRatableError(ObjectType):
+    tag = graphene.Field(RatableEnum, required=True)
+    owner = graphene.String()
+    error = graphene.String()
+
+
+class CreateRatableErrors(ObjectType):
+    errors = graphene.Field(CreateRatableError)
+
+
+class CreateRatablePayload(graphene.Union):
+    class Meta:
+        types = (RatableSuccess, CreateRatableErrors)
+
+
+class CreateRatableMutation(graphene.Mutation):
+    class Arguments:
+        input = CreateRatableInput(required=True)
+
+    Output = CreateRatablePayload
+
+    def mutate(self, info, **inputs):
+        user = info.context.current_user
+        params = dict(**inputs["input"], user_id=user.id)
+        result = ResumesLogic.create_ratable(cast(CreateRatableAttrs, params))
+
+        if isinstance(result, CreateRatableErrorsType):
+            return CreateRatableErrors(errors=result)
+
+        return RatableSuccess(ratable=result)
 
 
 class ResumesCombinedMutation(ObjectType):
@@ -302,3 +352,4 @@ class ResumesCombinedMutation(ObjectType):
     create_experience = CreateExperienceMutation.Field()
     create_education = CreateEducationMutation.Field()
     create_skill = CreateSkillMutation.Field()
+    create_ratable = CreateRatableMutation.Field()

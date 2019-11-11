@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from abc import ABCMeta, abstractmethod
+from enum import Enum
 from time import time
 from typing import NamedTuple, Optional, Tuple, Union
 
@@ -14,6 +15,11 @@ from server.interfaces import TimestampLike, UUID_IdLike
 
 PHOTO_ALREADY_UPLOADED = "___ALREADY_UPLOADED___"
 RESUME_TITLE_WITH_TIME = re.compile(r"^(.+?)_(\d{10})$")
+
+
+class RatableEnumType(Enum):
+    spoken_language = "spoken_language"
+    supplementary_skill = "supplementary_skill"
 
 
 class ResumesLogicInterface(metaclass=ABCMeta):
@@ -56,6 +62,11 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def create_skill(params: CreateSkillAttrs) -> CreateSkillReturnType:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
         pass
 
 
@@ -215,20 +226,27 @@ class Ratable(UUID_IdLike, TimestampLike, Protocol):
     description: str
     level: str
     owner_id: str
+    tag: RatableEnumType
 
 
 class CreateRatableRequiredAttrs(TypedDict):
     description: str
     owner_id: str
     user_id: str
+    tag: RatableEnumType
 
 
-class CreateSpokenLanguageAttrs(
-    CreateResumeComponentRequiredAttrs, total=False
-):  # noqa
+class CreateRatableAttrs(CreateRatableRequiredAttrs, total=False):
     level: str
 
 
+class CreateRatableErrorsType(NamedTuple):
+    tag: RatableEnumType
+    owner: Optional[str] = None
+    error: Optional[str] = None
+
+
+CreateRatableReturnType = Union[Ratable, CreateRatableErrorsType]
 ############################ end ratable ############################## noqa
 
 ############################ TEXT ONLY LIKE ############################## noqa
