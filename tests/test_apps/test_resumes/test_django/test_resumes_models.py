@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-from typing import cast
 
 import pytest
 
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (
     CreateResumeAttrs,
-    CreatePersonalInfoAttrs,
-    CreateResumeComponentErrors,
-    CreateExperienceAttrs,
-    CreateEducationAttrs,
-    CreateSkillAttrs,
     RatableEnumType,
-    CreateRatableAttrs,
-    CreateRatableErrorsType,
-)
+)  # noqa
 
 pytestmark = pytest.mark.django_db
 
@@ -120,14 +112,6 @@ def test_create_personal_info_fails_cos_resume_not_found(
     assert type(result["data"]["createPersonalInfo"]["errors"]["resume"]) == str
 
 
-def test_create_personal_info_fails_due_to_exception():
-    attrs = cast(CreatePersonalInfoAttrs, {})
-    result = cast(
-        CreateResumeComponentErrors, ResumesLogic.create_personal_info(attrs)
-    )  # noqa
-    assert type(result.error) == str
-
-
 def test_create_experience_succeeds(
     graphql_client, create_experience_query, user_and_resume_fixture
 ):
@@ -161,15 +145,6 @@ def test_create_experience_fails_cos_resume_not_found(
 
     errors = result["data"]["createExperience"]["errors"]
     assert type(errors["resume"]) == str
-
-
-def test_create_experience_fails_due_to_exception():
-    attrs = cast(CreateExperienceAttrs, {})
-
-    result = cast(
-        CreateResumeComponentErrors, ResumesLogic.create_experience(attrs)
-    )  # noqa
-    assert type(result.error) == str
 
 
 def test_create_education_succeeds(
@@ -207,15 +182,6 @@ def test_create_education_fails_cos_resume_not_found(
     assert type(errors["resume"]) == str
 
 
-def test_create_education_fails_due_to_exception():
-    attrs = cast(CreateEducationAttrs, {})
-
-    result = cast(
-        CreateResumeComponentErrors, ResumesLogic.create_education(attrs)
-    )  # noqa
-    assert type(result.error) == str
-
-
 def test_create_skill_succeeds(
     graphql_client, create_skill_query, user_and_resume_fixture
 ):
@@ -249,13 +215,6 @@ def test_create_skill_fails_cos_resume_not_found(
 
     errors = result["data"]["createSkill"]["errors"]
     assert type(errors["resume"]) == str
-
-
-def test_create_skill_fails_due_to_exception():
-    attrs = cast(CreateSkillAttrs, {})
-
-    result = cast(CreateResumeComponentErrors, ResumesLogic.create_skill(attrs))
-    assert type(result.error) == str
 
 
 def test_create_spoken_languages_succeeds(
@@ -302,19 +261,6 @@ def test_create_spoken_languages_fails_cos_resume_not_found(
     assert errors["tag"] == RatableEnumType.spoken_language.name
 
 
-def test_create_spoken_language_fails_due_to_exception():
-    attrs = cast(
-        CreateRatableAttrs, {"tag": RatableEnumType.spoken_language.name}
-    )  # noqa
-
-    result = cast(CreateRatableErrorsType, ResumesLogic.create_ratable(attrs))
-    assert type(result.error) == str
-    assert result.tag == RatableEnumType.spoken_language
-
-
-############################ title ############################## noqa
-
-
 def test_create_supplementary_skill_succeeds(
     graphql_client, create_ratable_query, user_and_resume_fixture
 ):
@@ -357,13 +303,3 @@ def test_create_supplementary_skill_fails_cos_resume_not_found(
     errors = result["data"]["createRatable"]["errors"]
     assert type(errors["owner"]) == str
     assert errors["tag"] == RatableEnumType.supplementary_skill.name
-
-
-def test_create_supplementary_skill_fails_due_to_exception():
-    attrs = cast(
-        CreateRatableAttrs, {"tag": RatableEnumType.supplementary_skill.name}
-    )  # noqa
-
-    result = cast(CreateRatableErrorsType, ResumesLogic.create_ratable(attrs))
-    assert type(result.error) == str
-    assert result.tag == RatableEnumType.supplementary_skill

@@ -69,6 +69,13 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
         pass
 
+    @staticmethod
+    @abstractmethod
+    def personal_info_from_resume(
+        resume: ResumeLike
+    ) -> Optional[PersonalInfoLike]:  # noqa
+        pass
+
 
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)

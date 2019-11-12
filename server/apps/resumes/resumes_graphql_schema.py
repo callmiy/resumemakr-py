@@ -18,6 +18,8 @@ from server.apps.resumes.resumes_commons import (  # noqa
     RatableEnumType,
     CreateRatableAttrs,
     CreateRatableErrorsType,
+    GetResumeAttrs,
+    CreateResumeComponentErrors,
 )
 
 
@@ -29,6 +31,7 @@ class Resume(ObjectType):
     title = graphene.String(required=True)
     description = graphene.String(required=False)
     user_id = graphene.ID(required=True)
+    personal_info = graphene.List(lambda: PersonalInfo)
 
 
 class CreateResumeInput(graphene.InputObjectType):
@@ -119,14 +122,19 @@ class CreatePersonalInfoMutation(graphene.Mutation):
 
     def mutate(self, info, **inputs):
         user = info.context.current_user
-        params = dict(**inputs["input"], user_id=user.id)
+        params = inputs["input"]
+
+        resume = ResumesLogic.get_resume(
+            GetResumeAttrs(user_id=user.id, id=params["resume_id"])
+        )
+
+        if resume is None:
+            errors = CreateResumeComponentErrors(resume="not found")
+            return CreatePersonalInfoErrors(errors=errors)
 
         result = ResumesLogic.create_personal_info(
             cast(CreatePersonalInfoAttrs, params)
         )
-
-        if isinstance(result, CreateResumeComponentErrors):
-            return CreatePersonalInfoErrors(errors=result)
 
         return PersonalInfoSuccess(personal_info=result)
 
@@ -189,9 +197,18 @@ class CreateExperienceMutation(graphene.Mutation):
 
     def mutate(self, info, **inputs):
         user = info.context.current_user
-        params = dict(**inputs["input"], user_id=user.id)
+        params = inputs["input"]
+
+        resume = ResumesLogic.get_resume(
+            GetResumeAttrs(user_id=user.id, id=params["resume_id"])
+        )
+
+        if resume is None:
+            errors = CreateResumeComponentErrors(resume="not found")
+            return CreateExperienceErrors(errors=errors)
+
         result = ResumesLogic.create_experience(
-            cast(CreateExperienceAttrs, params)
+            cast(CreateExperienceAttrs, dict(**params))
         )  # noqa
 
         if isinstance(result, CreateResumeComponentErrors):
@@ -239,13 +256,19 @@ class CreateEducationMutation(graphene.Mutation):
 
     def mutate(self, info, **inputs):
         user = info.context.current_user
-        params = dict(**inputs["input"], user_id=user.id)
+        params = inputs["input"]
+
+        resume = ResumesLogic.get_resume(
+            GetResumeAttrs(user_id=user.id, id=params["resume_id"])
+        )
+
+        if resume is None:
+            errors = CreateResumeComponentErrors(resume="not found")
+            return CreateEducationErrors(errors=errors)
+
         result = ResumesLogic.create_education(
             cast(CreateEducationAttrs, params)
         )  # noqa
-
-        if isinstance(result, CreateResumeComponentErrors):
-            return CreateEducationErrors(errors=result)
 
         return EducationSuccess(education=result)
 
@@ -283,11 +306,17 @@ class CreateSkillMutation(graphene.Mutation):
 
     def mutate(self, info, **inputs):
         user = info.context.current_user
-        params = dict(**inputs["input"], user_id=user.id)
-        result = ResumesLogic.create_skill(cast(CreateSkillAttrs, params))
+        params = inputs["input"]
 
-        if isinstance(result, CreateResumeComponentErrors):
-            return CreateSkillErrors(errors=result)
+        resume = ResumesLogic.get_resume(
+            GetResumeAttrs(user_id=user.id, id=params["resume_id"])
+        )
+
+        if resume is None:
+            errors = CreateResumeComponentErrors(resume="not found")
+            return CreateSkillErrors(errors=errors)
+
+        result = ResumesLogic.create_skill(cast(CreateSkillAttrs, params))
 
         return SkillSuccess(skill=result)
 
@@ -337,11 +366,18 @@ class CreateRatableMutation(graphene.Mutation):
 
     def mutate(self, info, **inputs):
         user = info.context.current_user
-        params = dict(**inputs["input"], user_id=user.id)
-        result = ResumesLogic.create_ratable(cast(CreateRatableAttrs, params))
+        params = inputs["input"]
+        tag = params["tag"]
 
-        if isinstance(result, CreateRatableErrorsType):
-            return CreateRatableErrors(errors=result)
+        resume = ResumesLogic.get_resume(
+            GetResumeAttrs(user_id=user.id, id=params["owner_id"])
+        )
+
+        if resume is None:
+            errors = CreateRatableErrorsType(owner="not found", tag=tag)
+            return CreateRatableErrors(errors=errors)
+
+        result = ResumesLogic.create_ratable(cast(CreateRatableAttrs, params))
 
         return RatableSuccess(ratable=result)
 

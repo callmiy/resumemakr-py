@@ -144,6 +144,24 @@ def login_query(user_fragment):
 
 
 @pytest.fixture()
+def personal_info_fragment():
+    return f"""
+        fragment {personal_info_fragment_name} on PersonalInfo {{
+            id
+            firstName
+            lastName
+            profession
+            address
+            email
+            phone
+            photo
+            dateOfBirth
+            resumeId
+        }}
+    """
+
+
+@pytest.fixture()
 def resume_fragment():
     return f"""
         fragment {resume_fragment_name} on Resume {{
@@ -152,6 +170,11 @@ def resume_fragment():
             description
             userId
             {timestamps_fragment}
+
+            personalInfo {{
+                id
+                resumeId
+            }}
         }}
     """
 
@@ -176,24 +199,6 @@ def create_resume_query(resume_fragment):
         }}
 
         {resume_fragment}
-    """
-
-
-@pytest.fixture()
-def personal_info_fragment():
-    return f"""
-        fragment {personal_info_fragment_name} on PersonalInfo {{
-            id
-            firstName
-            lastName
-            profession
-            address
-            email
-            phone
-            photo
-            dateOfBirth
-            resumeId
-        }}
     """
 
 
