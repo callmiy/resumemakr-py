@@ -76,6 +76,11 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     ) -> Optional[PersonalInfoLike]:  # noqa
         pass
 
+    @staticmethod
+    @abstractmethod
+    def get_personal_info_from_resume(resume: ResumeLike) -> MaybePersonalInfo:
+        pass
+
 
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)
@@ -119,7 +124,6 @@ class CreateIndexableAttr(TypedDict):
 
 class CreateResumeComponentRequiredAttrs(TypedDict):
     resume_id: str
-    user_id: str
 
 
 class Indexable(Protocol):
@@ -159,10 +163,13 @@ CreatePersonalInfoReturnType = Union[
     PersonalInfoLike, CreateResumeComponentErrors
 ]  # noqa
 
+MaybePersonalInfo = Optional[PersonalInfoLike]
 
 ############################ END PERSONAL INFO ########################## noqa
 
 ############################ EDUCATION ############################## noqa
+
+
 class EducationLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
     school: str
     course: str

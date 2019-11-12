@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
+from typing import cast
 
 import pytest
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import (
+from server.apps.resumes.resumes_commons import (  # noqa
+    CreatePersonalInfoAttrs,
     CreateResumeAttrs,
+    PersonalInfoLike,
     RatableEnumType,
-)  # noqa
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -303,3 +306,26 @@ def test_create_supplementary_skill_fails_cos_resume_not_found(
     errors = result["data"]["createRatable"]["errors"]
     assert type(errors["owner"]) == str
     assert errors["tag"] == RatableEnumType.supplementary_skill.name
+
+
+def test_get_all_resume_fields_succeeds(
+    graphql_client, user_and_resume_fixture, get_resume_query
+):  # noqa
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    _personal_info = ResumesLogic.create_personal_info(
+        CreatePersonalInfoAttrs(resume_id=resume_id, first_name="kanmii")
+    )
+
+    personal_info = cast(PersonalInfoLike, _personal_info)
+
+    result = graphql_client.execute(
+        get_resume_query,
+        variables={"input": {"title": resume.title}},
+        context=Context(current_user=user),
+    )
+
+    resume_map = result["data"]["getResume"]
+    assert resume_map["id"] == resume_id
+    assert resume_map["personalInfo"]["id"] == str(personal_info.id)

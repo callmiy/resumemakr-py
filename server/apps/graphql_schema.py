@@ -7,15 +7,15 @@ from graphene_django.debug import DjangoDebug
 from server.apps.accounts.accounts_graphql_schema import (
     AccountsCombinedMutation,
 )  # noqa
-from server.apps.resumes.resumes_graphql_schema import ResumesCombinedMutation
+from server.apps.resumes.resumes_graphql_schema import (
+    ResumesCombinedMutation,
+    ResumesCombinedQuery,
+)
 from server.apps.accounts.logic import user_from_jwt
 
 
-class AppQuery(ObjectType):
+class AppQuery(ResumesCombinedQuery, ObjectType):
     debug = Field(DjangoDebug, name="_debug")
-
-    def resolve_hello(self, info):
-        return "hello"
 
 
 class AppMutation(

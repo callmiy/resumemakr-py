@@ -101,7 +101,11 @@ class PersonalInfo(models.Model):
     date_of_birth = models.CharField(max_length=255, blank=True, null=True)
 
     resume = models.ForeignKey(
-        Resume, models.DO_NOTHING, db_index=False, db_constraint=False
+        Resume,
+        models.DO_NOTHING,
+        db_index=False,
+        db_constraint=False,
+        related_name="personal_info",
     )
 
     class Meta:

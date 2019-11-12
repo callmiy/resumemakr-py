@@ -31,7 +31,10 @@ class Resume(ObjectType):
     title = graphene.String(required=True)
     description = graphene.String(required=False)
     user_id = graphene.ID(required=True)
-    personal_info = graphene.List(lambda: PersonalInfo)
+    personal_info = graphene.Field(lambda: PersonalInfo)
+
+    def resolve_personal_info(self, info, **args):
+        return ResumesLogic.get_personal_info_from_resume(self)
 
 
 class CreateResumeInput(graphene.InputObjectType):
@@ -382,6 +385,11 @@ class CreateRatableMutation(graphene.Mutation):
         return RatableSuccess(ratable=result)
 
 
+class GetResumeInput(graphene.InputObjectType):
+    id = graphene.String()
+    title = graphene.String()
+
+
 class ResumesCombinedMutation(ObjectType):
     create_resume = CreateResumeMutation.Field()
     create_personal_info = CreatePersonalInfoMutation.Field()
@@ -389,3 +397,14 @@ class ResumesCombinedMutation(ObjectType):
     create_education = CreateEducationMutation.Field()
     create_skill = CreateSkillMutation.Field()
     create_ratable = CreateRatableMutation.Field()
+
+
+class ResumesCombinedQuery(object):
+    get_resume = graphene.Field(Resume, input=GetResumeInput(required=True))
+
+    def resolve_get_resume(self, info, **args):
+        user = info.context.current_user
+        _params = args["input"]
+        _params["user_id"] = user.id
+        resume = ResumesLogic.get_resume(cast(GetResumeAttrs, _params))
+        return resume

@@ -386,3 +386,15 @@ def create_ratable_query(ratable_fragment):
         }}
         {ratable_fragment}
     """
+
+
+@pytest.fixture()
+def get_resume_query(resume_fragment):
+    return f"""
+        query GetResume($input: GetResumeInput!) {{
+            getResume(input: $input) {{
+                ...{resume_fragment_name}
+            }}
+        }}
+        {resume_fragment}
+    """

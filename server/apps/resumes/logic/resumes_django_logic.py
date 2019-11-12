@@ -39,6 +39,7 @@ from server.apps.resumes.resumes_commons import (
     CreateRatableReturnType,
     Ratable,
     RatableEnumType,
+    MaybePersonalInfo,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -89,6 +90,7 @@ class ResumesDjangoLogic(ResumesLogicInterface):
                 params["photo"] = url
 
             personal_info = PersonalInfo(**params)
+            personal_info.save()
             return cast(PersonalInfoLike, personal_info)
         except KeyError:
             return CreateResumeComponentErrors(error="something went wrong")
@@ -103,11 +105,15 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def create_education(
         params: CreateEducationAttrs
     ) -> CreateEducationReturnType:  # noqa
-        return cast(EducationLike, Education(**params))
+        education = Education(**params)
+        education.save()
+        return cast(EducationLike, education)
 
     @staticmethod
     def create_skill(params: CreateSkillAttrs) -> CreateSkillReturnType:
-        return cast(SkillLike, Skill(**params))
+        skill = Skill(**params)
+        skill.save()
+        return cast(SkillLike, skill)
 
     @staticmethod
     def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
@@ -119,6 +125,13 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         elif tag == RatableEnumType.supplementary_skill:
             cls = SupplementarySkill  # type: ignore
 
-        ratable = cast(Ratable, cls(**params))
+        _ratable = cls(**params)
+        _ratable.save()
+        ratable = cast(Ratable, _ratable)
         ratable.tag = tag
         return ratable
+
+    @staticmethod
+    def get_personal_info_from_resume(resume: ResumeLike) -> MaybePersonalInfo:
+        personal_info_set = resume.personal_info.all()  # type: ignore
+        return None if len(personal_info_set) == 0 else personal_info_set[0]
