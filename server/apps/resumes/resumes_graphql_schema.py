@@ -21,6 +21,7 @@ from server.apps.resumes.resumes_commons import (  # noqa
     GetResumeAttrs,
     CreateResumeComponentErrors,
 )
+from server.data_loader import make_personal_info_from_resume_id_loader_hash
 
 
 class Resume(ObjectType):
@@ -34,7 +35,10 @@ class Resume(ObjectType):
     personal_info = graphene.Field(lambda: PersonalInfo)
 
     def resolve_personal_info(self, info, **args):
-        return ResumesLogic.get_personal_info_from_resume(self)
+        loader = info.context.app_data_loader
+        return loader.load(
+            make_personal_info_from_resume_id_loader_hash(self.id)
+        )
 
 
 class CreateResumeInput(graphene.InputObjectType):

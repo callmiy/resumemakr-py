@@ -162,7 +162,22 @@ def personal_info_fragment():
 
 
 @pytest.fixture()
-def resume_fragment():
+def education_fragment():
+    return f"""
+        fragment {education_fragment_name} on Education {{
+           id
+           resumeId
+           index
+           course
+           school
+           fromDate
+           toDate
+        }}
+    """
+
+
+@pytest.fixture()
+def resume_fragment(personal_info_fragment, education_fragment):
     return f"""
         fragment {resume_fragment_name} on Resume {{
             id
@@ -172,6 +187,11 @@ def resume_fragment():
             {timestamps_fragment}
 
             personalInfo {{
+                id
+                resumeId
+            }}
+
+            education {{
                 id
                 resumeId
             }}
@@ -269,19 +289,6 @@ def create_experience_query(experience_fragment):
     """
 
 
-@pytest.fixture()
-def education_fragment():
-    return f"""
-        fragment {education_fragment_name} on Education {{
-           id
-           resumeId
-           index
-           course
-           school
-           fromDate
-           toDate
-        }}
-    """
 
 
 @pytest.fixture()

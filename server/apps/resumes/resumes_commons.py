@@ -6,7 +6,7 @@ import re
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from time import time
-from typing import NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple, Optional, Tuple, Union, List
 
 from mypy_extensions import TypedDict
 from typing_extensions import Protocol
@@ -79,6 +79,11 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def get_personal_info_from_resume(resume: ResumeLike) -> MaybePersonalInfo:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_personal_infos(resume_ids: List[str]) -> List[PersonalInfoLike]:
         pass
 
 
