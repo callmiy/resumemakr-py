@@ -132,14 +132,6 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         return ratable
 
     @staticmethod
-    def get_personal_info_from_resume(resume: ResumeLike) -> MaybePersonalInfo:
-        personal_info_set = resume.personal_info.all()  # type: ignore
-        return None if len(personal_info_set) == 0 else personal_info_set[0]
-
-    @staticmethod
     def get_personal_infos(resume_ids: List[str]) -> List[PersonalInfoLike]:
         personal_infos = PersonalInfo.objects.filter(resume_id__in=resume_ids)
-        return cast(
-            List[PersonalInfoLike],
-            personal_infos
-        )
+        return cast(List[PersonalInfoLike], personal_infos)

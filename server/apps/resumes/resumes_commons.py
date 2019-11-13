@@ -78,11 +78,6 @@ class ResumesLogicInterface(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def get_personal_info_from_resume(resume: ResumeLike) -> MaybePersonalInfo:
-        pass
-
-    @staticmethod
-    @abstractmethod
     def get_personal_infos(resume_ids: List[str]) -> List[PersonalInfoLike]:
         pass
 
