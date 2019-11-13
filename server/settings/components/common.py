@@ -56,6 +56,10 @@ MIDDLEWARE: Tuple[str, ...] = (
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    (
+        "server.middlewares."
+        "put_current_user_and_dataloader_in_request_middleware"  # noqa
+    ),
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 )
@@ -153,7 +157,4 @@ X_FRAME_OPTIONS = "DENY"
 EMAIL_TIMEOUT = 5
 
 
-GRAPHENE = {
-    "SCHEMA": "server.apps.graphql_schema.graphql_schema",
-    "MIDDLEWARE": ("server.apps.graphql_schema.put_user_context",),
-}
+GRAPHENE = {"SCHEMA": "server.apps.graphql_schema.graphql_schema"}

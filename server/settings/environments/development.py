@@ -54,7 +54,7 @@ MIDDLEWARE += (
     "querycount.middleware.QueryCountMiddleware",
 )
 
-GRAPHENE["MIDDLEWARE"] += (  # type: ignore
+GRAPHENE["MIDDLEWARE"] = (  # type: ignore
     "graphene_django.debug.DjangoDebugMiddleware",
 )  # noqa
 
@@ -84,6 +84,5 @@ MIDDLEWARE = ("nplusone.ext.django.NPlusOneMiddleware",) + MIDDLEWARE  # noqa
 NPLUSONE_RAISE = True  # comment out if you want to allow N+1 requests
 NPLUSONE_LOGGER = logging.getLogger("django")
 NPLUSONE_LOG_LEVEL = logging.WARN
-
 
 CSRF_COOKIE_HTTPONLY = False  # <- blocking graphiql if True
