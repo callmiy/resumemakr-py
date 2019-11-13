@@ -177,7 +177,7 @@ def education_fragment():
 
 
 @pytest.fixture()
-def resume_fragment(personal_info_fragment, education_fragment):
+def resume_fragment():
     return f"""
         fragment {resume_fragment_name} on Resume {{
             id
@@ -218,6 +218,18 @@ def create_resume_query(resume_fragment):
             }}
         }}
 
+        {resume_fragment}
+    """
+
+
+@pytest.fixture()
+def get_resume_query(resume_fragment):
+    return f"""
+        query GetResume($input: GetResumeInput!) {{
+            getResume(input: $input) {{
+                ...{resume_fragment_name}
+            }}
+        }}
         {resume_fragment}
     """
 
@@ -287,8 +299,6 @@ def create_experience_query(experience_fragment):
         }}
         {experience_fragment}
     """
-
-
 
 
 @pytest.fixture()
@@ -392,16 +402,4 @@ def create_ratable_query(ratable_fragment):
             }}
         }}
         {ratable_fragment}
-    """
-
-
-@pytest.fixture()
-def get_resume_query(resume_fragment):
-    return f"""
-        query GetResume($input: GetResumeInput!) {{
-            getResume(input: $input) {{
-                ...{resume_fragment_name}
-            }}
-        }}
-        {resume_fragment}
     """

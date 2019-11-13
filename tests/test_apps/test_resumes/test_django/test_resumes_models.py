@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from collections import namedtuple
-from typing import cast
+from typing import cast, NamedTuple
 
 import pytest
+from graphene import Context
 
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (  # noqa
@@ -12,11 +12,13 @@ from server.apps.resumes.resumes_commons import (  # noqa
     PersonalInfoLike,
     RatableEnumType,
 )
+from server.data_loader import AppDataLoader
 
 pytestmark = pytest.mark.django_db
 
-Context = namedtuple("Context", ("current_user",))
-BogusUser = namedtuple("BogusUser", ("id",))
+
+class BogusUser(NamedTuple):
+    id: str
 
 
 def test_create_resume_succeeds(
@@ -28,7 +30,9 @@ def test_create_resume_succeeds(
     result = graphql_client.execute(
         create_resume_query,
         variables={"input": attrs},
-        context=Context(current_user=registered_user),
+        context=Context(
+            current_user=registered_user, app_data_loader=AppDataLoader()
+        ),  # noqa
     )  # noqa
 
     resume = result["data"]["createResume"]["resume"]
@@ -323,7 +327,7 @@ def test_get_all_resume_fields_succeeds(
     result = graphql_client.execute(
         get_resume_query,
         variables={"input": {"title": resume.title}},
-        context=Context(current_user=user),
+        context=Context(current_user=user, app_data_loader=AppDataLoader()),
     )
 
     resume_map = result["data"]["getResume"]

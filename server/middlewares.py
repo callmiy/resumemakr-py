@@ -4,7 +4,7 @@ from server.apps.accounts.logic import user_from_jwt
 from server.data_loader import AppDataLoader
 
 
-def set_grapnhql_context_middleware(get_response):
+def set_graphql_context_middleware(get_response):
     def middleware(request):
         setattr(request, "app_data_loader", AppDataLoader())
         authorization = request.headers.get("Authorization")

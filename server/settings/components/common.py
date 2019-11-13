@@ -56,10 +56,7 @@ MIDDLEWARE: Tuple[str, ...] = (
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    (
-        "server.middlewares."
-        "put_current_user_and_dataloader_in_request_middleware"  # noqa
-    ),
+    "server.middlewares.set_graphql_context_middleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 )
