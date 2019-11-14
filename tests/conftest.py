@@ -191,7 +191,7 @@ def resume_fragment():
                 resumeId
             }}
 
-            education {{
+            educations {{
                 id
                 resumeId
             }}

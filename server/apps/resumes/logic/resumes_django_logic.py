@@ -39,7 +39,6 @@ from server.apps.resumes.resumes_commons import (
     CreateRatableReturnType,
     Ratable,
     RatableEnumType,
-    MaybePersonalInfo,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
@@ -135,3 +134,8 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def get_personal_infos(resume_ids: List[str]) -> List[PersonalInfoLike]:
         personal_infos = PersonalInfo.objects.filter(resume_id__in=resume_ids)
         return cast(List[PersonalInfoLike], personal_infos)
+
+    @staticmethod
+    def get_educations(resume_ids: List[str]) -> List[EducationLike]:
+        educations = Education.objects.filter(resume_id__in=resume_ids)
+        return cast(List[EducationLike], educations)

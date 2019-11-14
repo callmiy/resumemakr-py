@@ -71,14 +71,14 @@ class ResumesLogicInterface(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def personal_info_from_resume(
-        resume: ResumeLike
-    ) -> Optional[PersonalInfoLike]:  # noqa
+    def get_personal_infos(
+        resume_ids: List[str]
+    ) -> List[PersonalInfoLike]:  # noqa E501
         pass
 
     @staticmethod
     @abstractmethod
-    def get_personal_infos(resume_ids: List[str]) -> List[PersonalInfoLike]:
+    def get_educations(resume_ids: List[str]) -> List[EducationLike]:
         pass
 
 

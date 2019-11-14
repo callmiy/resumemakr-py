@@ -33,7 +33,7 @@ class Resume(ObjectType):
     description = graphene.String(required=False)
     user_id = graphene.ID(required=True)
     personal_info = graphene.Field(lambda: PersonalInfo)
-    education = graphene.List(lambda: Education)
+    educations = graphene.List(lambda: Education)
 
     def resolve_personal_info(self, info, **args):
         loader = info.context.app_data_loader
