@@ -21,7 +21,7 @@ from server.apps.resumes.resumes_commons import (  # noqa
     GetResumeAttrs,
     CreateResumeComponentErrors,
 )
-from server.data_loader import make_personal_info_from_resume_id_loader_hash
+from server.data_loader import make_personal_info_from_resume_id_loader_hash, make_education_from_resume_id_loader_hash # noqa E501
 
 
 class Resume(ObjectType):
@@ -33,13 +33,36 @@ class Resume(ObjectType):
     description = graphene.String(required=False)
     user_id = graphene.ID(required=True)
     personal_info = graphene.Field(lambda: PersonalInfo)
+
     educations = graphene.List(lambda: Education)
+
+    experiences = graphene.List(lambda: Experience)
+
+    hobbies = graphene.List(lambda: TextOnly)
+
+    skills = graphene.List(lambda: Skill)
+
+    languages = graphene.List(lambda: Ratable)
+
+    supplementary_skills = graphene.List(lambda: Ratable)
 
     def resolve_personal_info(self, info, **args):
         loader = info.context.app_data_loader
         return loader.load(
             make_personal_info_from_resume_id_loader_hash(self.id)
         )  # noqa
+
+
+for resolver_name, hasher_fn in (
+        (
+            'personal_info', make_personal_info_from_resume_id_loader_hash
+        ),
+
+        (
+            'educations', make_education_from_resume_id_loader_hash
+        )
+        ):
+   setattr(Resume, f'resolve_{resolver_name}',  lambda resume, info, **args: info.context.app_data_loader.load(hasher_fn(resume.id)))
 
 
 class CreateResumeInput(graphene.InputObjectType):
@@ -174,6 +197,7 @@ class Experience(ObjectType):
     company_name = graphene.String()
     from_date = graphene.String()
     to_date = graphene.String()
+    achievements = graphene.List(lambda: TextOnly)
 
 
 class CreateExperienceInput(CreateIndexable, graphene.InputObjectType):
@@ -233,6 +257,7 @@ class Education(ObjectType):
     course = graphene.String()
     from_date = graphene.String()
     to_date = graphene.String()
+    achievements = graphene.List(lambda: TextOnly)
 
 
 class CreateEducationInput(CreateIndexable, graphene.InputObjectType):
@@ -286,6 +311,7 @@ class Skill(ObjectType):
         interfaces = (HasResumeIdInterface, Indexable)
 
     description = graphene.String()
+    achievements = graphene.List(lambda: TextOnly)
 
 
 class CreateSkillInput(CreateIndexable, graphene.InputObjectType):
