@@ -21,7 +21,10 @@ from server.apps.resumes.resumes_commons import (  # noqa
     GetResumeAttrs,
     CreateResumeComponentErrors,
 )
-from server.data_loader import make_personal_info_from_resume_id_loader_hash, make_education_from_resume_id_loader_hash # noqa E501
+from server.data_loader import (
+    make_personal_info_from_resume_id_loader_hash,
+    make_education_from_resume_id_loader_hash,
+)  # noqa E501
 
 
 class Resume(ObjectType):
@@ -33,36 +36,22 @@ class Resume(ObjectType):
     description = graphene.String(required=False)
     user_id = graphene.ID(required=True)
     personal_info = graphene.Field(lambda: PersonalInfo)
-
     educations = graphene.List(lambda: Education)
-
     experiences = graphene.List(lambda: Experience)
-
     hobbies = graphene.List(lambda: TextOnly)
-
     skills = graphene.List(lambda: Skill)
-
     languages = graphene.List(lambda: Ratable)
-
     supplementary_skills = graphene.List(lambda: Ratable)
 
     def resolve_personal_info(self, info, **args):
-        loader = info.context.app_data_loader
-        return loader.load(
+        return info.context.app_data_loader.load(
             make_personal_info_from_resume_id_loader_hash(self.id)
-        )  # noqa
-
-
-for resolver_name, hasher_fn in (
-        (
-            'personal_info', make_personal_info_from_resume_id_loader_hash
-        ),
-
-        (
-            'educations', make_education_from_resume_id_loader_hash
         )
-        ):
-   setattr(Resume, f'resolve_{resolver_name}',  lambda resume, info, **args: info.context.app_data_loader.load(hasher_fn(resume.id)))
+
+    def resolve_educations(self, info, **args):
+        return info.context.app_data_loader.load(
+            make_education_from_resume_id_loader_hash(self.id)
+        )
 
 
 class CreateResumeInput(graphene.InputObjectType):
@@ -171,14 +160,14 @@ class CreatePersonalInfoMutation(graphene.Mutation):
 
 
 class TextOnly(ObjectType):
-    id: graphene.ID(required=True)  # type: ignore
-    text: graphene.String(required=True)  # type: ignore
-    owner_id: graphene.ID(required=True)  # type: ignore
+    id = graphene.ID(required=True)
+    text = graphene.String(required=True)
+    owner_id = graphene.ID(required=True)
 
 
 class CreateTextOnly(graphene.InputObjectType):
-    text: graphene.String(required=True)  # type: ignore
-    owner_id: graphene.ID(required=True)  # type: ignore
+    text = graphene.String(required=True)
+    owner_id = graphene.ID(required=True)
 
 
 class Indexable(Interface):
