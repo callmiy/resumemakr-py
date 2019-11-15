@@ -14,7 +14,8 @@ version = "0.1.0"
 readme = "README.md"
 authors = []
 packages = [
-  {include = "server"}
+  {include = "server"},
+  {include = "resumemakr_pytest_plugins"}
 ]
 
 [tool.poetry.dependencies]
