@@ -24,6 +24,7 @@ from server.apps.resumes.resumes_commons import (  # noqa
 from server.data_loader import (
     make_personal_info_from_resume_id_loader_hash,
     make_education_from_resume_id_loader_hash,
+    make_skill_from_resume_id_loader_hash,
 )  # noqa E501
 
 

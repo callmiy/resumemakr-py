@@ -13,6 +13,8 @@ from server.apps.resumes.resumes_commons import (  # noqa
     RatableEnumType,
     CreateEducationAttrs,
     EducationLike,
+    SkillLike,
+    CreateSkillAttrs,
 )
 from server.data_loader import AppDataLoader
 
@@ -326,11 +328,19 @@ def test_get_all_resume_fields_succeeds(
 
     personal_info = cast(PersonalInfoLike, _personal_info)
 
-    _education = ResumesLogic.create_education(
-        CreateEducationAttrs(resume_id=resume_id, index=0)
+    education = cast(
+        EducationLike,
+        ResumesLogic.create_education(
+            CreateEducationAttrs(resume_id=resume_id, index=0)
+        ),
     )
 
-    education = cast(EducationLike, _education)
+    skill = cast(
+        SkillLike,
+        ResumesLogic.create_skill(
+            CreateSkillAttrs(resume_id=resume_id, index=0)
+        ),  # noqa E501
+    )
 
     result = graphql_client.execute(
         get_resume_query,
@@ -341,5 +351,9 @@ def test_get_all_resume_fields_succeeds(
     resume_map = result["data"]["getResume"]
     assert resume_map["id"] == resume_id
     assert resume_map["personalInfo"]["id"] == str(personal_info.id)
+
     education_object = resume_map["educations"][0]
     assert education_object["id"] == str(education.id)
+
+    skill_object = resume_map["skills"][0]
+    assert skill_object["id"] == str(skill.id)

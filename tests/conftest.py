@@ -177,6 +177,18 @@ def education_fragment():
 
 
 @pytest.fixture()
+def skill_fragment():
+    return f"""
+        fragment {skill_fragment_name} on Skill {{
+           id
+           resumeId
+           index
+           description
+        }}
+    """
+
+
+@pytest.fixture()
 def resume_fragment():
     return f"""
         fragment {resume_fragment_name} on Resume {{
@@ -192,6 +204,11 @@ def resume_fragment():
             }}
 
             educations {{
+                id
+                resumeId
+            }}
+
+            skills {{
                 id
                 resumeId
             }}
@@ -324,18 +341,6 @@ def create_education_query(education_fragment):
             }}
         }}
         {education_fragment}
-    """
-
-
-@pytest.fixture()
-def skill_fragment():
-    return f"""
-        fragment {skill_fragment_name} on Skill {{
-           id
-           resumeId
-           index
-           description
-        }}
     """
 
 
