@@ -82,6 +82,12 @@ class ResumesLogicInterface(metaclass=ABCMeta):
         pass
 
 
+    @staticmethod
+    @abstractmethod
+    def get_skills(resume_ids: List[str]) -> List[SkillLike]:
+        pass
+
+
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)
 

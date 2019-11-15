@@ -76,7 +76,7 @@ def make_skill_from_resume_id_loader_hash(resume_id: Union[UUID, str]) -> str:
 def personal_info_from_resume_id_loader(
     index_resume_id_list: IndexIdListType
 ) -> ResourceFromIdLoaderType[PersonalInfoLike]:
-    index_personal_info_list = from_resume_id_loader(
+    index_personal_info_list = resources_from_from_ids_loader(
         index_resume_id_list, ResumesLogic.get_personal_infos
     )  # noqa E501
 
@@ -89,12 +89,12 @@ def personal_info_from_resume_id_loader(
 def education_from_resume_id_loader(
     index_resume_id_list: IndexIdListType
 ) -> ResourceListFromIdLoaderType[EducationLike]:
-    return from_resume_id_loader(
+    return resources_from_from_ids_loader(
         index_resume_id_list, ResumesLogic.get_educations
     )  # noqa E501
 
 
-def from_resume_id_loader(
+def resources_from_from_ids_loader(
     index_resume_id_list: IndexIdListType,
     resource_getter_fn: Callable[[List[str]], List[T]],
 ) -> ResourceListFromIdLoaderType[T]:
@@ -145,8 +145,15 @@ class AppDataLoader(DataLoader):
 
             elif tag == EDUCATION_FROM_RESUME_ID_LOADER_TAG:
                 index_resource_list.extend(
-                    education_from_resume_id_loader(index_args_list)
+        resources_from_from_ids_loader(
+        index_args_list, ResumesLogic.get_educations
+        )
                 )
+            elif tag == SKILL_FROM_RESUME_ID_LOADER_TAG:
+                index_resource_list.extend(
+        resources_from_from_ids_loader(
+        index_args_list, ResumesLogic.get_skills
+                ))
         return Promise.resolve(
             [
                 resource[1]

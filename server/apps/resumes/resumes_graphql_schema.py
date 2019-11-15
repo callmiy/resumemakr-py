@@ -55,6 +55,12 @@ class Resume(ObjectType):
         )
 
 
+    def resolve_skills(self, info, **args):
+        return info.context.app_data_loader.load(
+            make_skill_from_resume_id_loader_hash(self.id)
+        )
+
+
 class CreateResumeInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String()

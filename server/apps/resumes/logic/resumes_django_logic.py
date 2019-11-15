@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import Tuple, cast, List
+from typing import Tuple, cast, List, Type, Mapping
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
@@ -43,6 +43,8 @@ from server.apps.resumes.resumes_commons import (
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
 )  # noqa
+
+ratable_classes_map: Mapping[Ratable, Type[django.db.models]]
 
 
 class ResumesDjangoLogic(ResumesLogicInterface):
@@ -139,3 +141,9 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def get_educations(resume_ids: List[str]) -> List[EducationLike]:
         educations = Education.objects.filter(resume_id__in=resume_ids)
         return cast(List[EducationLike], educations)
+
+
+    @staticmethod
+    def get_skills(resume_ids: List[str]) -> List[SkillLike]:
+        skills = Skill.objects.filter(resume_id__in=resume_ids)
+        return cast(List[SkillLike], skills)
