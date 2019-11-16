@@ -81,7 +81,6 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     def get_educations(resume_ids: List[str]) -> List[EducationLike]:
         pass
 
-
     @staticmethod
     @abstractmethod
     def get_skills(resume_ids: List[str]) -> List[SkillLike]:

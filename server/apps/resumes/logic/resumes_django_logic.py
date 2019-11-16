@@ -4,7 +4,7 @@
 from typing import Tuple, cast, List, Type, Mapping
 
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, models
 
 from server.apps.resumes.models import (
     Education,
@@ -44,7 +44,10 @@ from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
 )  # noqa
 
-ratable_classes_map: Mapping[Ratable, Type[django.db.models]]
+ratable_classes_map: Mapping[RatableEnumType, Type[models.Model]] = {
+    RatableEnumType.spoken_language: SpokenLanguage,
+    RatableEnumType.supplementary_skill: SupplementarySkill,
+}
 
 
 class ResumesDjangoLogic(ResumesLogicInterface):
@@ -120,13 +123,7 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
         tag = RatableEnumType(params.pop("tag"))  # type: ignore
 
-        if tag == RatableEnumType.spoken_language:
-            cls = SpokenLanguage
-
-        elif tag == RatableEnumType.supplementary_skill:
-            cls = SupplementarySkill  # type: ignore
-
-        _ratable = cls(**params)
+        _ratable = ratable_classes_map[tag](**params)
         _ratable.save()
         ratable = cast(Ratable, _ratable)
         ratable.tag = tag
@@ -141,7 +138,6 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def get_educations(resume_ids: List[str]) -> List[EducationLike]:
         educations = Education.objects.filter(resume_id__in=resume_ids)
         return cast(List[EducationLike], educations)
-
 
     @staticmethod
     def get_skills(resume_ids: List[str]) -> List[SkillLike]:

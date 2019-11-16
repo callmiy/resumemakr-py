@@ -54,7 +54,6 @@ class Resume(ObjectType):
             make_education_from_resume_id_loader_hash(self.id)
         )
 
-
     def resolve_skills(self, info, **args):
         return info.context.app_data_loader.load(
             make_skill_from_resume_id_loader_hash(self.id)

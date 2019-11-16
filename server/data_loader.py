@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from typing import (  # noqa E501
+from functools import partial
+from typing import (
     Any,
     Callable,
     List,
+    Mapping,
     MutableMapping,
     Optional,
     Tuple,
@@ -18,19 +20,19 @@ from promise.dataloader import DataLoader
 from typing_extensions import Protocol
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import EducationLike, PersonalInfoLike
+from server.apps.resumes.resumes_commons import PersonalInfoLike
 
 T = TypeVar("T")
 IndexIdListType = List[Tuple[int, str]]
 ResourceListFromIdLoaderType = List[Tuple[int, List[Optional[T]]]]
 ResourceFromIdLoaderType = List[Tuple[int, Optional[T]]]
+LoaderHashType = Tuple[str, str]
 
 
 class HasResumeId(Protocol):
     resume_id: str
 
 
-TAG_ARGS_SEPARATOR = "::"
 PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = "0"
 EDUCATION_FROM_RESUME_ID_LOADER_TAG = "1"
 EXPERIENCE_FROM_RESUME_ID_LOADER_TAG = "2"
@@ -42,42 +44,33 @@ SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG = "6"
 
 def make_personal_info_from_resume_id_loader_hash(
     resume_id: Union[UUID, str]
-) -> str:  # noqa E501
-    resume_id = str(resume_id)
-
-    return "{}{}{}".format(
-        PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG, TAG_ARGS_SEPARATOR, resume_id
-    )
+) -> LoaderHashType:
+    return (PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_education_from_resume_id_loader_hash(
     resume_id: Union[UUID, str]
-) -> str:  # noqa E501
-    resume_id = str(resume_id)
-    return (
-        f"{EDUCATION_FROM_RESUME_ID_LOADER_TAG}{TAG_ARGS_SEPARATOR}{resume_id}"
-    )  # noqa
+) -> LoaderHashType:
+    return (EDUCATION_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_experience_from_resume_id_loader_hash(
     resume_id: Union[UUID, str]
-) -> str:  # noqa
-    resume_id = str(resume_id)
-    return (
-        f"{EDUCATION_FROM_RESUME_ID_LOADER_TAG}{TAG_ARGS_SEPARATOR}{resume_id}"
-    )  # noqa E501
+) -> LoaderHashType:
+    return (EDUCATION_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
-def make_skill_from_resume_id_loader_hash(resume_id: Union[UUID, str]) -> str:
-    resume_id = str(resume_id)
-    return f"{SKILL_FROM_RESUME_ID_LOADER_TAG}{TAG_ARGS_SEPARATOR}{resume_id}"
+def make_skill_from_resume_id_loader_hash(
+    resume_id: Union[UUID, str]
+) -> LoaderHashType:
+    return (SKILL_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def personal_info_from_resume_id_loader(
     index_resume_id_list: IndexIdListType
 ) -> ResourceFromIdLoaderType[PersonalInfoLike]:
     index_personal_info_list = resources_from_from_ids_loader(
-        index_resume_id_list, ResumesLogic.get_personal_infos
+        ResumesLogic.get_personal_infos, index_resume_id_list
     )  # noqa E501
 
     # This is not optimal. We should not be doing a second iteration here
@@ -86,17 +79,9 @@ def personal_info_from_resume_id_loader(
     ]  # noqa E501
 
 
-def education_from_resume_id_loader(
-    index_resume_id_list: IndexIdListType
-) -> ResourceListFromIdLoaderType[EducationLike]:
-    return resources_from_from_ids_loader(
-        index_resume_id_list, ResumesLogic.get_educations
-    )  # noqa E501
-
-
 def resources_from_from_ids_loader(
-    index_resume_id_list: IndexIdListType,
     resource_getter_fn: Callable[[List[str]], List[T]],
+    index_resume_id_list: IndexIdListType,
 ) -> ResourceListFromIdLoaderType[T]:
     resume_ids_list: List[str] = []
     resume_id_index_map: MutableMapping[str, int] = {}
@@ -123,12 +108,25 @@ def resources_from_from_ids_loader(
     return index_resource_list
 
 
+resources_getter_fn_map: Mapping[  # type: ignore[disable_any_explicit] # noqa F821
+    str, Callable[[IndexIdListType], Any]
+] = {  # noqa E501
+    PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG: personal_info_from_resume_id_loader,  # noqa E501
+    EDUCATION_FROM_RESUME_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader, ResumesLogic.get_educations
+    ),
+    SKILL_FROM_RESUME_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader, ResumesLogic.get_skills
+    ),
+}
+
+
 class AppDataLoader(DataLoader):
-    def batch_load_fn(self, keys: List[str]) -> None:
+    def batch_load_fn(self, keys: Tuple[str, List[str]]) -> None:
         tags_index_args_map: MutableMapping[str, List[Tuple[int, str]]] = {}
 
         for index, key in enumerate(keys):
-            tag, args = key.split(TAG_ARGS_SEPARATOR, 2)
+            tag, args = key
             index_args_list = tags_index_args_map.get(tag, [])
             index_args_list.append((index, args))
             tags_index_args_map[tag] = index_args_list
@@ -138,22 +136,10 @@ class AppDataLoader(DataLoader):
         for tag in tags_index_args_map:
             index_args_list = tags_index_args_map[tag]
 
-            if tag == PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG:
-                index_resource_list.extend(
-                    personal_info_from_resume_id_loader(index_args_list)
-                )  # noqa
+            index_resource_list.extend(
+                resources_getter_fn_map[tag](index_args_list)
+            )  # noqa E501
 
-            elif tag == EDUCATION_FROM_RESUME_ID_LOADER_TAG:
-                index_resource_list.extend(
-        resources_from_from_ids_loader(
-        index_args_list, ResumesLogic.get_educations
-        )
-                )
-            elif tag == SKILL_FROM_RESUME_ID_LOADER_TAG:
-                index_resource_list.extend(
-        resources_from_from_ids_loader(
-        index_args_list, ResumesLogic.get_skills
-                ))
         return Promise.resolve(
             [
                 resource[1]
