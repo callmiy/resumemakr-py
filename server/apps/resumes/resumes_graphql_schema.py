@@ -44,20 +44,27 @@ class Resume(ObjectType):
     languages = graphene.List(lambda: Ratable)
     supplementary_skills = graphene.List(lambda: Ratable)
 
-    def resolve_personal_info(self, info, **args):
-        return info.context.app_data_loader.load(
-            make_personal_info_from_resume_id_loader_hash(self.id)
-        )
 
-    def resolve_educations(self, info, **args):
-        return info.context.app_data_loader.load(
-            make_education_from_resume_id_loader_hash(self.id)
+def make_resume_resolver_fn(hash_fn):
+    return staticmethod(
+        lambda resume, info, **args: info.context.app_data_loader.load(
+            hash_fn(resume.id)
         )
+    )
 
-    def resolve_skills(self, info, **args):
-        return info.context.app_data_loader.load(
-            make_skill_from_resume_id_loader_hash(self.id)
-        )
+
+for resolver_name, hash_fn in (
+    ("skills", make_skill_from_resume_id_loader_hash),
+    ("educations", make_education_from_resume_id_loader_hash),
+    ("personal_info", make_personal_info_from_resume_id_loader_hash),
+):  # noqa E501
+    setattr(
+        Resume,
+        f"resolve_{resolver_name}",
+        make_resume_resolver_fn(  # type: ignore[check_untyped_defs] # noqa F821
+            hash_fn
+        ),
+    )
 
 
 class CreateResumeInput(graphene.InputObjectType):

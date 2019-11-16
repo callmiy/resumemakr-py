@@ -26,7 +26,9 @@ T = TypeVar("T")
 IndexIdListType = List[Tuple[int, str]]
 ResourceListFromIdLoaderType = List[Tuple[int, List[Optional[T]]]]
 ResourceFromIdLoaderType = List[Tuple[int, Optional[T]]]
-LoaderHashType = Tuple[str, str]
+TagType = str
+LoaderHashType = Tuple[TagType, str]
+BatchKeysType = Tuple[TagType, List[str]]
 
 
 class HasResumeId(Protocol):
@@ -81,35 +83,35 @@ def personal_info_from_resume_id_loader(
 
 def resources_from_from_ids_loader(
     resource_getter_fn: Callable[[List[str]], List[T]],
-    index_resume_id_list: IndexIdListType,
+    index_arg_id_list: IndexIdListType,
 ) -> ResourceListFromIdLoaderType[T]:
     resume_ids_list: List[str] = []
     resume_id_index_map: MutableMapping[str, int] = {}
 
-    for (index, resume_id) in index_resume_id_list:
-        resume_ids_list.append(resume_id)
-        resume_id_index_map[resume_id] = index
+    for (index, arg_id) in index_arg_id_list:
+        resume_ids_list.append(arg_id)
+        resume_id_index_map[arg_id] = index
 
     resume_id_resource_map: MutableMapping[str, List[Optional[T]]] = {}
 
     for p in resource_getter_fn(resume_ids_list):
-        resume_id = str(cast(HasResumeId, p).resume_id)
-        resources = resume_id_resource_map.get(resume_id, [])
+        arg_id = str(cast(HasResumeId, p).resume_id)
+        resources = resume_id_resource_map.get(arg_id, [])
         resources.append(p)
-        resume_id_resource_map[resume_id] = resources
+        resume_id_resource_map[arg_id] = resources
 
     index_resource_list: List[Tuple[int, List[Optional[T]]]] = []
 
-    for resume_id in resume_ids_list:
-        index = resume_id_index_map[resume_id]
-        resources = resume_id_resource_map.get(resume_id, [])
+    for arg_id in resume_ids_list:
+        index = resume_id_index_map[arg_id]
+        resources = resume_id_resource_map.get(arg_id, [])
         index_resource_list.append((index, resources))
 
     return index_resource_list
 
 
 resources_getter_fn_map: Mapping[  # type: ignore[disable_any_explicit] # noqa F821
-    str, Callable[[IndexIdListType], Any]
+    TagType, Callable[[IndexIdListType], Any]
 ] = {  # noqa E501
     PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG: personal_info_from_resume_id_loader,  # noqa E501
     EDUCATION_FROM_RESUME_ID_LOADER_TAG: partial(
@@ -122,8 +124,8 @@ resources_getter_fn_map: Mapping[  # type: ignore[disable_any_explicit] # noqa F
 
 
 class AppDataLoader(DataLoader):
-    def batch_load_fn(self, keys: Tuple[str, List[str]]) -> None:
-        tags_index_args_map: MutableMapping[str, List[Tuple[int, str]]] = {}
+    def batch_load_fn(self, keys: BatchKeysType) -> None:
+        tags_index_args_map: MutableMapping[TagType, List[Tuple[int, str]]] = {}
 
         for index, key in enumerate(keys):
             tag, args = key
