@@ -6,7 +6,7 @@ import re
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from time import time
-from typing import NamedTuple, Optional, Tuple, Union, List
+from typing import List, NamedTuple, Optional, Tuple, Union
 
 from mypy_extensions import TypedDict
 from typing_extensions import Protocol
@@ -36,7 +36,7 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def create_personal_info(
-        params: CreatePersonalInfoAttrs
+        params: CreatePersonalInfoAttrs,
     ) -> CreatePersonalInfoReturnType:  # noqa
         pass
 
@@ -48,15 +48,15 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def create_experience(
-        params: CreateExperienceAttrs
-    ) -> CreateExperienceReturnType:  # noqa
+        params: CreateExperienceAttrs,
+    ) -> CreateExperienceReturnType:  # noqa E501
         pass
 
     @staticmethod
     @abstractmethod
     def create_education(
-        params: CreateEducationAttrs
-    ) -> CreateEducationReturnType:  # noqa
+        params: CreateEducationAttrs,
+    ) -> CreateEducationReturnType:  # noqa E50
         pass
 
     @staticmethod
@@ -72,7 +72,7 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def get_personal_infos(
-        resume_ids: List[str]
+        resume_ids: List[str],
     ) -> List[PersonalInfoLike]:  # noqa E501
         pass
 

@@ -22,6 +22,7 @@ from typing_extensions import Protocol
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import PersonalInfoLike
 
+
 T = TypeVar("T")
 IndexIdListType = List[Tuple[int, str]]
 ResourceListFromIdLoaderType = List[Tuple[int, List[Optional[T]]]]
@@ -35,7 +36,10 @@ class HasResumeId(Protocol):
     resume_id: str
 
 
-PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = "0"
+PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = (
+    "0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+)
+
 EDUCATION_FROM_RESUME_ID_LOADER_TAG = "1"
 EXPERIENCE_FROM_RESUME_ID_LOADER_TAG = "2"
 HOBBY_FROM_RESUME_ID_LOADER_TAG = "3"
@@ -69,7 +73,7 @@ def make_skill_from_resume_id_loader_hash(
 
 
 def personal_info_from_resume_id_loader(
-    index_resume_id_list: IndexIdListType
+    index_resume_id_list: IndexIdListType,
 ) -> ResourceFromIdLoaderType[PersonalInfoLike]:
     index_personal_info_list = resources_from_from_ids_loader(
         ResumesLogic.get_personal_infos, index_resume_id_list
@@ -140,7 +144,7 @@ class AppDataLoader(DataLoader):
 
             index_resource_list.extend(
                 resources_getter_fn_map[tag](index_args_list)
-            )  # noqa E501
+            )  # noqa E502
 
         return Promise.resolve(
             [
