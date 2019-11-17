@@ -117,6 +117,13 @@ class ResumesLogicInterface(metaclass=ABCMeta):
 
     @staticmethod
     @abstractstaticmethod
+    def get_text_only_owner(
+        owner_id: UUIDType, tag: TextOnlyEnumType,
+    ) -> Optional[TextOnlyOwnersUnion]:
+        pass
+
+    @staticmethod
+    @abstractstaticmethod
     def get_ratables(
         owner_ids: List[UUIDType], tag: RatableEnumType,
     ) -> List[Ratable]:  # noqa E501
@@ -342,5 +349,8 @@ class CreateTextOnlyErrorsType:
 
 CreateTextOnlyReturnType = Union[TextOnlyLike, CreateTextOnlyErrorsType]
 
+TextOnlyOwnersUnion = Union[
+    ResumeLike, EducationLike, ExperienceLike, SkillLike
+]  # noqa E501
 
 ############################ END TEST ONLY LIKE ####################### noqa

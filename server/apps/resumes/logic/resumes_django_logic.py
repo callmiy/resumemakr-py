@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import List, Mapping, Tuple, Type, cast
+from typing import List, Mapping, Tuple, Type, cast, Optional
 
 from django.conf import settings
 from django.db import IntegrityError, models, transaction
@@ -48,6 +48,7 @@ from server.apps.resumes.resumes_commons import (
     TextOnlyEnumType,
     TextOnlyLike,
     uniquify_resume_title,
+    TextOnlyOwnersUnion,
 )
 from server.file_upload_utils import (  # noqa
     bytes_and_file_name_from_data_url_encoded_string,
@@ -64,6 +65,14 @@ TEXT_ONLY_CLASSES_MAP: Mapping[TextOnlyEnumType, Type[models.Model]] = {
     TextOnlyEnumType.education_achievement: EducationAchievement,
     TextOnlyEnumType.experience_achievement: ExperienceAchievement,
     TextOnlyEnumType.skill_achievement: SkillAchievement,
+}
+
+
+TEXT_ONLY_OWNER_CLASSES_MAP: Mapping[TextOnlyEnumType, Type[models.Model]] = {
+    TextOnlyEnumType.resume_hobby: Resume,
+    TextOnlyEnumType.education_achievement: Education,
+    TextOnlyEnumType.experience_achievement: Experience,
+    TextOnlyEnumType.skill_achievement: Skill,
 }
 
 
@@ -212,3 +221,15 @@ class ResumesDjangoLogic(ResumesLogicInterface):
             ratables.append(ratable)
 
         return ratables
+
+    @staticmethod
+    def get_text_only_owner(
+        owner_id: UUIDType, tag: TextOnlyEnumType,
+    ) -> Optional[TextOnlyOwnersUnion]:
+        related_class = TEXT_ONLY_OWNER_CLASSES_MAP[tag]
+
+        try:
+            _related = related_class.objects.get(pk=owner_id)
+            return _related
+        except related_class.DoesNotExist:
+            return None

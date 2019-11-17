@@ -20,6 +20,8 @@ from server.apps.resumes.resumes_commons import (  # noqa
     GetResumeAttrs,
     RatableEnumType,
     TextOnlyEnumType,
+    CreateTextOnlyErrorsType,
+    CreateTextOnlyAttr,
 )
 from server.data_loader import (  # noqa E501
     make_education_from_resume_id_loader_hash,
@@ -200,10 +202,53 @@ class TextOnly(ObjectType):
     tag = graphene.Field(TextOnlyEnum, required=True)
 
 
-class CreateTextOnly(graphene.InputObjectType):
+class CreateTextOnlyInput(graphene.InputObjectType):
     text = graphene.String(required=True)
     owner_id = graphene.ID(required=True)
     tag = graphene.Field(TextOnlyEnum, required=True)
+
+
+class TextOnlySuccess(ObjectType):
+    text_only = graphene.Field(TextOnly)
+
+
+class CreateTextOnlyError(ObjectType):
+    tag = graphene.Field(TextOnlyEnum, required=True)
+    owner = graphene.String()
+    error = graphene.String()
+
+
+class CreateTextOnlyErrors(ObjectType):
+    errors = graphene.Field(CreateTextOnlyError)
+
+
+class CreateTextOnlyPayload(graphene.Union):
+    class Meta:
+        types = (
+            TextOnlySuccess,
+            CreateTextOnlyErrors,
+        )
+
+
+class CreateTextOnlyMutation(graphene.Mutation):
+    class Arguments:
+        input = CreateTextOnlyInput(required=True)
+
+    Output = CreateTextOnlyPayload
+
+    def mutate(self, info, **args):
+        params = args["input"]
+        owner_id = params.pop("owner_id")
+        tag = params["tag"]
+        owner = ResumesLogic.get_text_only_owner(owner_id, tag)
+
+        if owner is None:
+            errors = CreateTextOnlyErrorsType(owner="not found", tag=tag)
+            return CreateTextOnlyErrors(errors=errors)
+
+        result = ResumesLogic.create_text_only(cast(CreateTextOnlyAttr, params))
+
+        return TextOnlySuccess(text_only=result)
 
 
 class Indexable(Interface):
@@ -438,9 +483,9 @@ class CreateRatableMutation(graphene.Mutation):
 
     Output = CreateRatablePayload
 
-    def mutate(self, info, **inputs):
+    def mutate(self, info, **args):
         user = info.context.current_user
-        params = inputs["input"]
+        params = args["input"]
         tag = params["tag"]
 
         resume = ResumesLogic.get_resume(
@@ -468,6 +513,7 @@ class ResumesCombinedMutation(ObjectType):
     create_education = CreateEducationMutation.Field()
     create_skill = CreateSkillMutation.Field()
     create_ratable = CreateRatableMutation.Field()
+    create_text_only = CreateTextOnlyMutation.Field()
 
 
 class ResumesCombinedQuery(object):
