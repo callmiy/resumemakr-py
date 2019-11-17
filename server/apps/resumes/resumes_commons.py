@@ -115,6 +115,13 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     ) -> List[TextOnlyLike]:
         pass
 
+    @staticmethod
+    @abstractstaticmethod
+    def get_ratables(
+        owner_ids: List[UUIDType], tag: RatableEnumType,
+    ) -> List[Ratable]:  # noqa E501
+        pass
+
 
 def uniquify_resume_title(title: str) -> str:
     matched = RESUME_TITLE_WITH_TIME.match(title)
@@ -287,7 +294,6 @@ class Ratable(UUID_IdLike, TimestampLike, Protocol):
 class CreateRatableRequiredAttrs(TypedDict):
     description: str
     owner_id: UUIDType
-    user_id: UUIDType
     tag: RatableEnumType
 
 

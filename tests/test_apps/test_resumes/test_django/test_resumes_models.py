@@ -20,6 +20,8 @@ from server.apps.resumes.resumes_commons import (  # noqa
     TextOnlyEnumType,
     CreateExperienceAttrs,
     ExperienceLike,
+    CreateRatableAttrs,
+    Ratable,
 )
 from server.data_loader import AppDataLoader
 
@@ -338,11 +340,12 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
-    _personal_info = ResumesLogic.create_personal_info(
-        CreatePersonalInfoAttrs(resume_id=resume_id, first_name="kanmii")
+    personal_info = cast(
+        PersonalInfoLike,
+        ResumesLogic.create_personal_info(
+            CreatePersonalInfoAttrs(resume_id=resume_id, first_name="kanmii")
+        ),
     )
-
-    personal_info = cast(PersonalInfoLike, _personal_info)
 
     education = cast(
         EducationLike,
@@ -398,6 +401,17 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
+    language = cast(
+        Ratable,
+        ResumesLogic.create_ratable(
+            CreateRatableAttrs(
+                owner_id=resume_id,
+                tag=RatableEnumType.spoken_language,
+                description="aa",
+            )
+        ),
+    )
+
     result = graphql_client.execute(
         get_resume_query,
         variables={"input": {"title": resume.title}},
@@ -426,3 +440,6 @@ def test_get_all_resume_fields_succeeds(
     assert experience_obj["id"] == str(experience.id)
     experience_achievement_obj = experience_obj["achievements"][0]
     assert experience_achievement_obj["id"] == str(experience_achievement.id)
+
+    language_obj = resume_map["languages"][0]
+    assert language_obj["id"] == str(language.id)

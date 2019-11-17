@@ -19,6 +19,7 @@ from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (  # noqa E501
     PersonalInfoLike,
     TextOnlyEnumType,
+    RatableEnumType,
 )
 from server.apps.apps_commons import UUIDType
 
@@ -84,8 +85,16 @@ def make_achievement_from_experience_id_loader_hash(
     return (ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG, str(owner_id))
 
 
-def make_achievement_from_skill_id_loader_hash(owner_id: UUIDType,) -> BatchKeyType:
+def make_achievement_from_skill_id_loader_hash(
+    owner_id: UUIDType,
+) -> BatchKeyType:  # noqa E501
     return (ACHIEVEMENT_FROM_SKILL_ID_LOADER_TAG, str(owner_id))
+
+
+def make_language_from_resume_id_loader_hash(
+    owner_id: UUIDType,
+) -> BatchKeyType:  # noqa E501
+    return (SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG, str(owner_id))
 
 
 def personal_info_from_resume_id_loader(
@@ -172,6 +181,13 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         partial(
             ResumesLogic.get_many_text_only,
             tag=TextOnlyEnumType.skill_achievement,  # noqa E501
+        ),
+        from_id_attr_name="owner_id",
+    ),
+    SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader,
+        partial(
+            ResumesLogic.get_ratables, tag=RatableEnumType.spoken_language,  # noqa E501
         ),
         from_id_attr_name="owner_id",
     ),

@@ -63,7 +63,7 @@ TEXT_ONLY_CLASSES_MAP: Mapping[TextOnlyEnumType, Type[models.Model]] = {
     TextOnlyEnumType.resume_hobby: ResumeHobby,
     TextOnlyEnumType.education_achievement: EducationAchievement,
     TextOnlyEnumType.experience_achievement: ExperienceAchievement,
-    TextOnlyEnumType.skill_achievement: SkillAchievement
+    TextOnlyEnumType.skill_achievement: SkillAchievement,
 }
 
 
@@ -195,3 +195,20 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         )
 
         return cast(List[TextOnlyLike], text_only_list)
+
+    @staticmethod
+    def get_ratables(
+        owner_ids: List[UUIDType], tag: RatableEnumType,
+    ) -> List[Ratable]:  # noqa E501
+        _ratables = RATABLE_CLASSES_MAP[tag].objects.filter(
+            owner_id__in=owner_ids
+        )  # noqa E501
+
+        ratables: List[Ratable] = []
+
+        for _ratable in _ratables:
+            ratable = cast(Ratable, _ratable)
+            ratable.tag = tag
+            ratables.append(ratable)
+
+        return ratables

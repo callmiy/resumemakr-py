@@ -27,8 +27,23 @@ personal_info_fragment_name = "PersonalInfoFragment"
 experience_fragment_name = "ExperienceFragment"
 education_fragment_name = "EducationFragment"
 skill_fragment_name = "SkillFragment"
-ratable_fragment_name = "RatableFragment"
-text_only_fagment_name = "TextOnlyFragment"
+
+
+ratable_attributes = """
+   id
+   ownerId
+   description
+   tag
+   level
+"""
+
+
+text_only_fragment = f"""
+    {typename}
+    id
+    text
+    ownerId
+"""
 
 
 timestamps_fragment = """
@@ -163,7 +178,7 @@ def personal_info_fragment():
 
 
 @pytest.fixture()
-def education_fragment(text_only_fragment):
+def education_fragment():
     return f"""
         fragment {education_fragment_name} on Education {{
            id
@@ -175,10 +190,9 @@ def education_fragment(text_only_fragment):
            toDate
 
            achievements {{
-               ...{text_only_fagment_name}
+               {text_only_fragment}
            }}
         }}
-        {text_only_fragment}
     """
 
 
@@ -195,19 +209,7 @@ def skill_fragment():
 
 
 @pytest.fixture()
-def text_only_fragment():
-    return f"""
-        fragment {text_only_fagment_name} on TextOnly {{
-            {typename}
-            id
-            text
-            ownerId
-        }}
-    """
-
-
-@pytest.fixture()
-def resume_fragment(text_only_fragment):
+def resume_fragment():
     return f"""
         fragment {resume_fragment_name} on Resume {{
             id
@@ -225,8 +227,7 @@ def resume_fragment(text_only_fragment):
                 id
                 resumeId
                 achievements {{
-                    id
-                    ownerId
+                    {text_only_fragment}
                 }}
             }}
 
@@ -234,26 +235,30 @@ def resume_fragment(text_only_fragment):
                 id
                 resumeId
                 achievements {{
-                    id
-                    ownerId
+                    {text_only_fragment}
                 }}
             }}
 
             hobbies {{
-                ...{text_only_fagment_name}
+                {text_only_fragment}
             }}
 
             experiences {{
                 id
                 resumeId
                 achievements {{
-                    id
-                    ownerId
+                    {text_only_fragment}
                 }}
             }}
-        }}
 
-        {text_only_fragment}
+            languages {{
+                {ratable_attributes}
+            }}
+
+            supplementarySkills {{
+                {ratable_attributes}
+            }}
+        }}
     """
 
 
@@ -412,20 +417,7 @@ def create_skill_query(skill_fragment):
 
 
 @pytest.fixture()
-def ratable_fragment():
-    return f"""
-        fragment {ratable_fragment_name} on Ratable {{
-           id
-           ownerId
-           description
-           tag
-           level
-        }}
-    """
-
-
-@pytest.fixture()
-def create_ratable_query(ratable_fragment):
+def create_ratable_query():
     return f"""
         mutation CreateRatable($input: CreateRatableInput!) {{
             createRatable(input: $input) {{
@@ -434,7 +426,7 @@ def create_ratable_query(ratable_fragment):
 
                 ... on RatableSuccess {{
                     ratable {{
-                        ...{ratable_fragment_name}
+                       {ratable_attributes}
                     }}
                 }}
 
@@ -447,5 +439,4 @@ def create_ratable_query(ratable_fragment):
                 }}
             }}
         }}
-        {ratable_fragment}
     """
