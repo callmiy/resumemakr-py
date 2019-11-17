@@ -11,6 +11,7 @@ It may be also used for extending doctest's context:
 import base64
 import os
 from pathlib import PurePath
+from typing import cast
 
 import pytest
 from graphene.test import Client
@@ -18,6 +19,7 @@ from graphene.test import Client
 from server.apps.accounts.logic import AccountsLogic
 from server.apps.graphql_schema import graphql_schema
 from server.apps.resumes.logic import ResumesLogic
+from server.apps.resumes.resumes_commons import CreateSkillAttrs, SkillLike
 from server.file_upload_utils import data_url_encoded_string_delimiter
 
 typename = "__typename"
@@ -440,3 +442,43 @@ def create_ratable_query():
             }}
         }}
     """
+
+
+@pytest.fixture()
+def create_text_only_query():
+    return f"""
+        mutation CreateTextOnly($input: CreateTextOnlyInput!) {{
+            createTextOnly(input: $input) {{
+                {typename}
+
+                ... on TextOnlySuccess {{
+                    textOnly {{
+                        {text_only_fragment}
+                    }}
+                }}
+
+                ... on CreateTextOnlyErrors {{
+                    errors {{
+                        owner
+                        tag
+                        error
+                    }}
+                }}
+            }}
+        }}
+    """
+    pass
+
+
+@pytest.fixture()
+def make_skill_fixture():
+    def create_skill(resume_id, index=0):
+        skill = cast(
+            SkillLike,
+            ResumesLogic.create_skill(
+                CreateSkillAttrs(resume_id=resume_id, index=index)
+            ),  # noqa E501
+        )
+
+        return skill
+    return create_skill

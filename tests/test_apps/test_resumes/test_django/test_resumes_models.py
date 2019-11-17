@@ -324,8 +324,11 @@ def test_create_supplementary_skill_fails_cos_resume_not_found(
 
 
 def test_get_all_resume_fields_succeeds(
-    graphql_client, user_and_resume_fixture, get_resume_query
-):  # noqa
+    graphql_client,
+    user_and_resume_fixture,
+    get_resume_query,
+    make_skill_fixture,  # noqa E501
+):
     user, resume = user_and_resume_fixture
     resume_id = str(resume.id)
 
@@ -365,13 +368,7 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
-    skill = cast(
-        SkillLike,
-        ResumesLogic.create_skill(
-            CreateSkillAttrs(resume_id=resume_id, index=0)
-        ),  # noqa E501
-    )
-
+    skill = make_skill_fixture(resume_id)
     skill_achievement = cast(
         TextOnlyLike,
         ResumesLogic.create_text_only(
