@@ -28,6 +28,7 @@ from server.data_loader import (  # noqa E501
     make_hobby_from_resume_id_loader_hash,
     make_achievement_from_education_id_loader_hash,
     make_experience_from_resume_id_loader_hash,
+    make_achievement_from_experience_id_loader_hash,
 )
 
 
@@ -214,6 +215,11 @@ class Experience(ObjectType):
     from_date = graphene.String()
     to_date = graphene.String()
     achievements = graphene.List(lambda: TextOnly)
+
+    def resolve_achievements(self, info, **args):
+        return info.context.app_data_loader.load(
+            make_achievement_from_experience_id_loader_hash(self.id)
+        )
 
 
 class CreateExperienceInput(CreateIndexable, graphene.InputObjectType):

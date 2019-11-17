@@ -376,6 +376,17 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
+    experience_achievement = cast(
+        TextOnlyLike,
+        ResumesLogic.create_text_only(
+            CreateTextOnlyAttr(
+                tag=TextOnlyEnumType.experience_achievement,
+                owner_id=experience.id,
+                text="exa",  # noqa E501
+            )
+        ),
+    )
+
     result = graphql_client.execute(
         get_resume_query,
         variables={"input": {"title": resume.title}},
@@ -400,3 +411,5 @@ def test_get_all_resume_fields_succeeds(
 
     experience_obj = resume_map["experiences"][0]
     assert experience_obj["id"] == str(experience.id)
+    experience_achievement_obj = experience_obj["achievements"][0]
+    assert experience_achievement_obj["id"] == str(experience_achievement.id)

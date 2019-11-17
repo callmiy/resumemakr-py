@@ -27,8 +27,7 @@ IndexIdListType = List[Tuple[int, UUIDType]]
 ResourceListFromIdLoaderType = List[Tuple[int, List[Optional[T]]]]
 ResourceFromIdLoaderType = List[Tuple[int, Optional[T]]]
 TagType = str
-LoaderHashType = Tuple[TagType, str]
-BatchKeysType = Tuple[TagType, List[str]]
+BatchKeyType = Tuple[TagType, UUIDType]
 
 
 PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = "0"
@@ -44,38 +43,44 @@ ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG = "8"
 
 def make_personal_info_from_resume_id_loader_hash(
     resume_id: UUIDType,
-) -> LoaderHashType:
+) -> BatchKeyType:  # noqa E501
     return (PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_education_from_resume_id_loader_hash(
     resume_id: UUIDType,
-) -> LoaderHashType:  # noqa E501
+) -> BatchKeyType:  # noqa E501
     return (EDUCATION_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_experience_from_resume_id_loader_hash(
     resume_id: UUIDType,
-) -> LoaderHashType:  # noqa E501
+) -> BatchKeyType:  # noqa E501
     return (EXPERIENCE_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_skill_from_resume_id_loader_hash(
     resume_id: UUIDType,
-) -> LoaderHashType:  # noqa E501
+) -> BatchKeyType:  # noqa E501
     return (SKILL_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_hobby_from_resume_id_loader_hash(
     owner_id: UUIDType,
-) -> LoaderHashType:  # noqa E501
+) -> BatchKeyType:  # noqa E501
     return (HOBBY_FROM_RESUME_ID_LOADER_TAG, str(owner_id))
 
 
 def make_achievement_from_education_id_loader_hash(
     owner_id: UUIDType,
-) -> LoaderHashType:
+) -> BatchKeyType:  # noqa E501
     return (ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG, str(owner_id))
+
+
+def make_achievement_from_experience_id_loader_hash(
+    owner_id: UUIDType,
+) -> BatchKeyType:
+    return (ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG, str(owner_id))
 
 
 def personal_info_from_resume_id_loader(
@@ -92,7 +97,7 @@ def personal_info_from_resume_id_loader(
 
 
 def resources_from_from_ids_loader(
-    resource_getter_fn: Callable[[List[str]], List[T]],
+    resource_getter_fn: Callable[[List[UUIDType]], List[T]],
     index_arg_id_list: IndexIdListType,
     from_id_attr_name: str = "resume_id",
 ) -> ResourceListFromIdLoaderType[T]:
@@ -149,12 +154,22 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         ),
         from_id_attr_name="owner_id",
     ),
+    ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader,
+        partial(
+            ResumesLogic.get_many_text_only,
+            tag=TextOnlyEnumType.experience_achievement,  # noqa E501
+        ),
+        from_id_attr_name="owner_id",
+    ),
 }
 
 
 class AppDataLoader(DataLoader):
-    def batch_load_fn(self, keys: BatchKeysType) -> None:
-        tags_index_args_map: MutableMapping[TagType, List[Tuple[int, str]]] = {}
+    def batch_load_fn(self, keys: List[BatchKeyType]) -> None:
+        tags_index_args_map: MutableMapping[
+            TagType, List[Tuple[int, UUIDType]]
+        ] = {}  # noqa E501
 
         for index, key in enumerate(keys):
             tag, args = key
