@@ -9,23 +9,24 @@ from server.apps.graphql_schema_commons import TimestampsInterface
 from server.apps.resumes.logic import ResumesLogic
 from server.apps.resumes.resumes_commons import (  # noqa
     PHOTO_ALREADY_UPLOADED,
-    CreatePersonalInfoAttrs,
-    CreateResumeAttrs,
-    CreateResumeComponentErrors,
-    CreateExperienceAttrs,
     CreateEducationAttrs,
-    CreateSkillAttrs,
-    RatableEnumType,
+    CreateExperienceAttrs,
+    CreatePersonalInfoAttrs,
     CreateRatableAttrs,
     CreateRatableErrorsType,
-    GetResumeAttrs,
+    CreateResumeAttrs,
     CreateResumeComponentErrors,
+    CreateSkillAttrs,
+    GetResumeAttrs,
+    RatableEnumType,
+    TextOnlyEnumType,
 )
-from server.data_loader import (
-    make_personal_info_from_resume_id_loader_hash,
+from server.data_loader import (  # noqa E501
     make_education_from_resume_id_loader_hash,
+    make_personal_info_from_resume_id_loader_hash,
     make_skill_from_resume_id_loader_hash,
-)  # noqa E501
+    make_hobby_from_resume_id_loader_hash,
+)
 
 
 class Resume(ObjectType):
@@ -43,6 +44,11 @@ class Resume(ObjectType):
     skills = graphene.List(lambda: Skill)
     languages = graphene.List(lambda: Ratable)
     supplementary_skills = graphene.List(lambda: Ratable)
+
+    def resolve_hobbies(self, info, **args):
+        hash_str = make_hobby_from_resume_id_loader_hash(self.id)
+        loader = info.context.app_data_loader
+        return loader.load(hash_str)
 
 
 def make_resume_resolver_fn(hash_fn):
@@ -172,15 +178,20 @@ class CreatePersonalInfoMutation(graphene.Mutation):
         return PersonalInfoSuccess(personal_info=result)
 
 
+TextOnlyEnum = graphene.Enum.from_enum(TextOnlyEnumType)
+
+
 class TextOnly(ObjectType):
     id = graphene.ID(required=True)
     text = graphene.String(required=True)
     owner_id = graphene.ID(required=True)
+    tag = graphene.Field(TextOnlyEnum, required=True)
 
 
 class CreateTextOnly(graphene.InputObjectType):
     text = graphene.String(required=True)
     owner_id = graphene.ID(required=True)
+    tag = graphene.Field(TextOnlyEnum, required=True)
 
 
 class Indexable(Interface):

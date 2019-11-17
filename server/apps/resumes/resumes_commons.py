@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractstaticmethod
 from enum import Enum
 from time import time
 from typing import List, NamedTuple, Optional, Tuple, Union
@@ -22,68 +22,86 @@ class RatableEnumType(Enum):
     supplementary_skill = "supplementary_skill"
 
 
+class TextOnlyEnumType(Enum):
+    resume_hobbies = "resume_hobbies"
+
+
 class ResumesLogicInterface(metaclass=ABCMeta):
+    __slots__ = ()
+
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def save_data_url_encoded_file(base64_encoded_file: str) -> Tuple[str, str]:  # noqa
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def create_resume(params: CreateResumeAttrs) -> ResumeLike:
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def create_personal_info(
         params: CreatePersonalInfoAttrs,
     ) -> CreatePersonalInfoReturnType:  # noqa
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def get_resume(params: GetResumeAttrs) -> MaybeResume:
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def create_experience(
         params: CreateExperienceAttrs,
     ) -> CreateExperienceReturnType:  # noqa E501
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def create_education(
         params: CreateEducationAttrs,
     ) -> CreateEducationReturnType:  # noqa E50
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def create_skill(params: CreateSkillAttrs) -> CreateSkillReturnType:
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def get_personal_infos(
         resume_ids: List[str],
     ) -> List[PersonalInfoLike]:  # noqa E501
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def get_educations(resume_ids: List[str]) -> List[EducationLike]:
         pass
 
     @staticmethod
-    @abstractmethod
+    @abstractstaticmethod
     def get_skills(resume_ids: List[str]) -> List[SkillLike]:
+        pass
+
+    @staticmethod
+    @abstractstaticmethod
+    def create_text_only(attrs: CreateTextOnlyAttr) -> CreateTextOnlyReturnType:
+        pass
+
+    @staticmethod
+    @abstractstaticmethod
+    def get_many_text_only(
+        owner_ids: List[str], tag: TextOnlyEnumType,
+    ) -> List[TextOnlyLike]:
         pass
 
 
@@ -120,6 +138,18 @@ class GetResumeAttrs(TypedDict):
 
 
 MaybeResume = Optional[ResumeLike]
+
+
+class CreateResumeComponentErrors:
+    __slots__ = "resume", "error"
+
+    def __init__(
+        self, resume: Optional[str] = None, error: Optional[str] = None
+    ) -> None:
+        self.resume = resume
+        self.error = error
+
+
 ############################ END RESUME ############################## noqa
 
 
@@ -157,11 +187,6 @@ class CreatePersonalInfoAttrs(CreateResumeComponentRequiredAttrs, total=False):
     phone: str
     date_of_birth: str
     photo: str
-
-
-class CreateResumeComponentErrors(NamedTuple):
-    resume: Optional[str] = None
-    error: Optional[str] = None
 
 
 CreatePersonalInfoReturnType = Union[
@@ -268,17 +293,37 @@ class CreateRatableErrorsType(NamedTuple):
 CreateRatableReturnType = Union[Ratable, CreateRatableErrorsType]
 ############################ end ratable ############################## noqa
 
+
 ############################ TEXT ONLY LIKE ############################## noqa
 
 
 class TextOnlyLike(UUID_IdLike, Protocol):
     text: str
     owner_id: str
+    tag: TextOnlyEnumType
 
 
 class CreateTextOnlyAttr(TypedDict):
     text: str
     owner_id: str
+    tag: TextOnlyEnumType
+
+
+class CreateTextOnlyErrorsType:
+    __slots__ = "tag", "owner", "error"
+
+    def __init__(
+        self,
+        tag: TextOnlyEnumType,
+        owner: Optional[str] = None,
+        error: Optional[str] = None,
+    ) -> None:
+        self.tag = tag
+        self.owner = owner
+        self.error = error
+
+
+CreateTextOnlyReturnType = Union[TextOnlyLike, CreateTextOnlyErrorsType]
 
 
 ############################ END TEST ONLY LIKE ####################### noqa

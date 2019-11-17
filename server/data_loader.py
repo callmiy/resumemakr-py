@@ -11,17 +11,17 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
-    cast,
 )
 from uuid import UUID
 
 from promise import Promise
 from promise.dataloader import DataLoader
-from typing_extensions import Protocol
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import PersonalInfoLike
-
+from server.apps.resumes.resumes_commons import (
+    PersonalInfoLike,
+    TextOnlyEnumType,
+)  # noqa E501
 
 T = TypeVar("T")
 IndexIdListType = List[Tuple[int, str]]
@@ -30,10 +30,7 @@ ResourceFromIdLoaderType = List[Tuple[int, Optional[T]]]
 TagType = str
 LoaderHashType = Tuple[TagType, str]
 BatchKeysType = Tuple[TagType, List[str]]
-
-
-class HasResumeId(Protocol):
-    resume_id: str
+UUIDType = Union[UUID, str]
 
 
 PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = "0"
@@ -46,27 +43,33 @@ SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG = "6"
 
 
 def make_personal_info_from_resume_id_loader_hash(
-    resume_id: Union[UUID, str]
+    resume_id: UUIDType,
 ) -> LoaderHashType:
     return (PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_education_from_resume_id_loader_hash(
-    resume_id: Union[UUID, str]
-) -> LoaderHashType:
+    resume_id: UUIDType,
+) -> LoaderHashType:  # noqa E501
     return (EDUCATION_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_experience_from_resume_id_loader_hash(
-    resume_id: Union[UUID, str]
-) -> LoaderHashType:
+    resume_id: UUIDType,
+) -> LoaderHashType:  # noqa E501
     return (EDUCATION_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_skill_from_resume_id_loader_hash(
-    resume_id: Union[UUID, str]
-) -> LoaderHashType:
+    resume_id: UUIDType,
+) -> LoaderHashType:  # noqa E501
     return (SKILL_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
+
+
+def make_hobby_from_resume_id_loader_hash(
+    owner_id: UUIDType,
+) -> LoaderHashType:  # noqa E501
+    return (HOBBY_FROM_RESUME_ID_LOADER_TAG, str(owner_id))
 
 
 def personal_info_from_resume_id_loader(
@@ -85,33 +88,34 @@ def personal_info_from_resume_id_loader(
 def resources_from_from_ids_loader(
     resource_getter_fn: Callable[[List[str]], List[T]],
     index_arg_id_list: IndexIdListType,
+    from_id_attr_name: str = "resume_id",
 ) -> ResourceListFromIdLoaderType[T]:
-    resume_ids_list: List[str] = []
-    resume_id_index_map: MutableMapping[str, int] = {}
+    from_ids_list: List[str] = []
+    from_id_index_map: MutableMapping[str, int] = {}
 
-    for (index, arg_id) in index_arg_id_list:
-        resume_ids_list.append(arg_id)
-        resume_id_index_map[arg_id] = index
+    for (index, from_id) in index_arg_id_list:
+        from_ids_list.append(from_id)
+        from_id_index_map[from_id] = index
 
-    resume_id_resource_map: MutableMapping[str, List[Optional[T]]] = {}
+    from_id_to_resource_map: MutableMapping[str, List[Optional[T]]] = {}
 
-    for p in resource_getter_fn(resume_ids_list):
-        arg_id = str(cast(HasResumeId, p).resume_id)
-        resources = resume_id_resource_map.get(arg_id, [])
+    for p in resource_getter_fn(from_ids_list):
+        from_id = str(getattr(p, from_id_attr_name))
+        resources = from_id_to_resource_map.get(from_id, [])
         resources.append(p)
-        resume_id_resource_map[arg_id] = resources
+        from_id_to_resource_map[from_id] = resources
 
     index_resource_list: List[Tuple[int, List[Optional[T]]]] = []
 
-    for arg_id in resume_ids_list:
-        index = resume_id_index_map[arg_id]
-        resources = resume_id_resource_map.get(arg_id, [])
+    for from_id in from_ids_list:
+        index = from_id_index_map[from_id]
+        resources = from_id_to_resource_map.get(from_id, [])
         index_resource_list.append((index, resources))
 
     return index_resource_list
 
 
-resources_getter_fn_map: Mapping[  # type: ignore[disable_any_explicit] # noqa F821
+TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_explicit] # noqa F821
     TagType, Callable[[IndexIdListType], Any]
 ] = {  # noqa E501
     PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG: personal_info_from_resume_id_loader,  # noqa E501
@@ -120,6 +124,13 @@ resources_getter_fn_map: Mapping[  # type: ignore[disable_any_explicit] # noqa F
     ),
     SKILL_FROM_RESUME_ID_LOADER_TAG: partial(
         resources_from_from_ids_loader, ResumesLogic.get_skills
+    ),
+    HOBBY_FROM_RESUME_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader,
+        partial(
+            ResumesLogic.get_many_text_only, tag=TextOnlyEnumType.resume_hobbies
+        ),  # noqa E501
+        from_id_attr_name="owner_id",
     ),
 }
 
@@ -140,7 +151,7 @@ class AppDataLoader(DataLoader):
             index_args_list = tags_index_args_map[tag]
 
             index_resource_list.extend(
-                resources_getter_fn_map[tag](index_args_list)
+                TAG_TO_RESOURCES_GETTER_FUNCTION_MAP[tag](index_args_list)
             )  # noqa E502
 
         return Promise.resolve(

@@ -7,7 +7,15 @@ from django.contrib.postgres.fields import CITextField
 from server.apps.accounts.models import User
 
 
-class Resume(models.Model):  # type: ignore[disallow_any_explicit]
+class TextOnly(models.Model):
+    id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
+    text = models.TextField()
+
+    class Meta:
+        abstract = True
+
+
+class Resume(models.Model):  # type: ignore[disallow_any_explicit] # noqa F821
     class Meta:
         db_table = "resumes"
 
@@ -46,9 +54,7 @@ class Education(models.Model):
         ]  # noqa
 
 
-class EducationAchievement(models.Model):
-    id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    text = models.TextField()
+class EducationAchievement(TextOnly):
     owner = models.ForeignKey(
         Education, models.DO_NOTHING, db_constraint=False, db_index=False
     )
@@ -77,10 +83,7 @@ class Experience(models.Model):
         ]  # noqa
 
 
-class ExperienceAchievement(models.Model):
-    id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    text = models.TextField()
-
+class ExperienceAchievement(TextOnly):
     owner = models.ForeignKey(
         Experience, models.DO_NOTHING, db_index=False, db_constraint=False
     )
@@ -118,10 +121,7 @@ class PersonalInfo(models.Model):
         ]
 
 
-class ResumeHobby(models.Model):
-    id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    text = models.TextField()
-
+class ResumeHobby(TextOnly):
     owner = models.ForeignKey(
         Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
@@ -153,10 +153,7 @@ class Skill(models.Model):
         ]  # noqa
 
 
-class SkillAchievement(models.Model):
-    id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    text = models.TextField()
-
+class SkillAchievement(TextOnly):
     owner = models.ForeignKey(
         Skill, models.DO_NOTHING, db_index=False, db_constraint=False
     )
@@ -165,13 +162,18 @@ class SkillAchievement(models.Model):
         db_table = "skills_achievements"
 
 
-class SpokenLanguage(models.Model):  # type: ignore[disallow_any_explicit] # noqa
+class Ratable(models.Model):  # type: ignore[disallow_any_explicit] # noqa F821
     id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
     description = CITextField()
     level = models.CharField(max_length=255, blank=True, null=True)
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        abstract = True
+
+
+class SpokenLanguage(Ratable):  # type: ignore[disallow_any_explicit] # noqa F821
     owner = models.ForeignKey(
         Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )
@@ -180,13 +182,7 @@ class SpokenLanguage(models.Model):  # type: ignore[disallow_any_explicit] # noq
         db_table = "spoken_languages"
 
 
-class SupplementarySkill(models.Model):  # type: ignore[disallow_any_explicit] # noqa
-    id = models.UUIDField(default=generate_ulid_as_uuid, primary_key=True)
-    description = CITextField()
-    level = models.CharField(max_length=255, blank=True, null=True)
-    inserted_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+class SupplementarySkill(Ratable):  # type: ignore[disallow_any_explicit] # noqa F821
     owner = models.ForeignKey(
         Resume, models.DO_NOTHING, db_index=False, db_constraint=False
     )

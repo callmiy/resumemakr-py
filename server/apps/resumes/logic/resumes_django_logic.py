@@ -14,6 +14,7 @@ from server.apps.resumes.models import (
     Skill,
     SpokenLanguage,
     SupplementarySkill,
+    ResumeHobby,
 )  # noqa
 from server.apps.resumes.resumes_commons import (
     CreateEducationAttrs,
@@ -39,21 +40,35 @@ from server.apps.resumes.resumes_commons import (
     CreateRatableReturnType,
     Ratable,
     RatableEnumType,
+    TextOnlyLike,
+    CreateTextOnlyAttr,
+    CreateTextOnlyReturnType,
+    TextOnlyEnumType,
 )
 from server.file_upload_utils import (
     bytes_and_file_name_from_data_url_encoded_string,
 )  # noqa
 
-ratable_classes_map: Mapping[RatableEnumType, Type[models.Model]] = {
+RATABLE_CLASSES_MAP: Mapping[RatableEnumType, Type[models.Model]] = {
     RatableEnumType.spoken_language: SpokenLanguage,
     RatableEnumType.supplementary_skill: SupplementarySkill,
 }
 
 
+TEXT_ONLY_CLASSES_MAP: Mapping[TextOnlyEnumType, Type[models.Model]] = {
+    TextOnlyEnumType.resume_hobbies: ResumeHobby
+}
+
+
 class ResumesDjangoLogic(ResumesLogicInterface):
+    __slots__ = ()
+
     @staticmethod
     def save_data_url_encoded_file(string: str) -> Tuple[str, str]:  # noqa
-        bytes_string, file_name = bytes_and_file_name_from_data_url_encoded_string(  # noqa
+        (
+            bytes_string,
+            file_name,
+        ) = bytes_and_file_name_from_data_url_encoded_string(  # noqa
             string
         )
         file_path = f"{settings.MEDIA_ROOT}/{file_name}"
@@ -84,7 +99,7 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
     @staticmethod
     def create_personal_info(
-        params: CreatePersonalInfoAttrs
+        params: CreatePersonalInfoAttrs,
     ) -> CreatePersonalInfoReturnType:  # noqa
         try:
             photo = params.get("photo")
@@ -101,13 +116,13 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
     @staticmethod
     def create_experience(
-        params: CreateExperienceAttrs
+        params: CreateExperienceAttrs,
     ) -> CreateExperienceReturnType:  # noqa
         return cast(ExperienceLike, Experience(**params))
 
     @staticmethod
     def create_education(
-        params: CreateEducationAttrs
+        params: CreateEducationAttrs,
     ) -> CreateEducationReturnType:  # noqa
         education = Education(**params)
         education.save()
@@ -121,9 +136,9 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
     @staticmethod
     def create_ratable(params: CreateRatableAttrs) -> CreateRatableReturnType:
-        tag = RatableEnumType(params.pop("tag"))  # type: ignore
+        tag = RatableEnumType(params.pop("tag"))  # type: ignore[misc] # noqa F821
 
-        _ratable = ratable_classes_map[tag](**params)
+        _ratable = RATABLE_CLASSES_MAP[tag](**params)
         _ratable.save()
         ratable = cast(Ratable, _ratable)
         ratable.tag = tag
@@ -143,3 +158,24 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def get_skills(resume_ids: List[str]) -> List[SkillLike]:
         skills = Skill.objects.filter(resume_id__in=resume_ids)
         return cast(List[SkillLike], skills)
+
+    @staticmethod
+    def create_text_only(
+        params: CreateTextOnlyAttr,
+    ) -> CreateTextOnlyReturnType:  # noqa E501
+        tag = params.pop("tag")  # type: ignore[misc] # noqa F821
+        _text_only = TEXT_ONLY_CLASSES_MAP[tag](**params)
+        _text_only.save()
+        text_only = cast(TextOnlyLike, _text_only)
+        text_only.tag = tag
+        return text_only
+
+    @staticmethod
+    def get_many_text_only(
+        owner_ids: List[str], tag: TextOnlyEnumType,
+    ) -> List[TextOnlyLike]:
+        text_only_list = TEXT_ONLY_CLASSES_MAP[tag].objects.filter(
+            owner_id__in=owner_ids
+        )
+
+        return cast(List[TextOnlyLike], text_only_list)

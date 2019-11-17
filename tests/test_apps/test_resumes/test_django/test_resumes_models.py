@@ -15,6 +15,9 @@ from server.apps.resumes.resumes_commons import (  # noqa
     EducationLike,
     SkillLike,
     CreateSkillAttrs,
+    CreateTextOnlyAttr,
+    TextOnlyLike,
+    TextOnlyEnumType,
 )
 from server.data_loader import AppDataLoader
 
@@ -342,6 +345,17 @@ def test_get_all_resume_fields_succeeds(
         ),  # noqa E501
     )
 
+    hobby = cast(
+        TextOnlyLike,
+        ResumesLogic.create_text_only(
+            CreateTextOnlyAttr(
+                tag=TextOnlyEnumType.resume_hobbies,
+                owner_id=resume_id,
+                text="love",  # noqa E501
+            )
+        ),
+    )
+
     result = graphql_client.execute(
         get_resume_query,
         variables={"input": {"title": resume.title}},
@@ -357,3 +371,6 @@ def test_get_all_resume_fields_succeeds(
 
     skill_object = resume_map["skills"][0]
     assert skill_object["id"] == str(skill.id)
+
+    hobby_object = resume_map["hobbies"][0]
+    assert hobby_object["id"] == str(hobby.id)

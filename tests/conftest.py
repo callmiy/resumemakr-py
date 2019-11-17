@@ -28,6 +28,7 @@ experience_fragment_name = "ExperienceFragment"
 education_fragment_name = "EducationFragment"
 skill_fragment_name = "SkillFragment"
 ratable_fragment_name = "RatableFragment"
+text_only_fagment_name = "TextOnlyFragment"
 
 
 timestamps_fragment = """
@@ -189,7 +190,19 @@ def skill_fragment():
 
 
 @pytest.fixture()
-def resume_fragment():
+def text_only_fragment():
+    return f"""
+        fragment {text_only_fagment_name} on TextOnly {{
+            {typename}
+            id
+            text
+            ownerId
+        }}
+    """
+
+
+@pytest.fixture()
+def resume_fragment(text_only_fragment):
     return f"""
         fragment {resume_fragment_name} on Resume {{
             id
@@ -212,7 +225,13 @@ def resume_fragment():
                 id
                 resumeId
             }}
+
+            hobbies {{
+                ...{text_only_fagment_name}
+            }}
         }}
+
+        {text_only_fragment}
     """
 
 
