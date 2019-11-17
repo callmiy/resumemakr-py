@@ -36,10 +36,7 @@ class HasResumeId(Protocol):
     resume_id: str
 
 
-PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = (
-    "0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-)
-
+PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = "0"
 EDUCATION_FROM_RESUME_ID_LOADER_TAG = "1"
 EXPERIENCE_FROM_RESUME_ID_LOADER_TAG = "2"
 HOBBY_FROM_RESUME_ID_LOADER_TAG = "3"
