@@ -97,6 +97,12 @@ def make_language_from_resume_id_loader_hash(
     return (SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG, str(owner_id))
 
 
+def make_supplementary_skill_from_resume_id_loader_hash(
+    owner_id: UUIDType,
+) -> BatchKeyType:  # noqa E501
+    return (SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG, str(owner_id))
+
+
 def personal_info_from_resume_id_loader(
     index_resume_id_list: IndexIdListType,
 ) -> ResourceFromIdLoaderType[PersonalInfoLike]:
@@ -188,6 +194,14 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         resources_from_from_ids_loader,
         partial(
             ResumesLogic.get_ratables, tag=RatableEnumType.spoken_language,  # noqa E501
+        ),
+        from_id_attr_name="owner_id",
+    ),
+    SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader,
+        partial(
+            ResumesLogic.get_ratables,
+            tag=RatableEnumType.supplementary_skill,  # noqa E501
         ),
         from_id_attr_name="owner_id",
     ),

@@ -412,6 +412,17 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
+    supplementary_skill = cast(
+        Ratable,
+        ResumesLogic.create_ratable(
+            CreateRatableAttrs(
+                owner_id=resume_id,
+                tag=RatableEnumType.supplementary_skill,
+                description="bb",
+            )
+        ),
+    )
+
     result = graphql_client.execute(
         get_resume_query,
         variables={"input": {"title": resume.title}},
@@ -443,3 +454,6 @@ def test_get_all_resume_fields_succeeds(
 
     language_obj = resume_map["languages"][0]
     assert language_obj["id"] == str(language.id)
+
+    supplementary_skill_obj = resume_map["supplementarySkills"][0]
+    assert supplementary_skill_obj["id"] == str(supplementary_skill.id)

@@ -31,6 +31,7 @@ from server.data_loader import (  # noqa E501
     make_achievement_from_experience_id_loader_hash,
     make_achievement_from_skill_id_loader_hash,
     make_language_from_resume_id_loader_hash,
+    make_supplementary_skill_from_resume_id_loader_hash,
 )
 
 
@@ -70,6 +71,10 @@ for resolver_name, hash_fn in (
     ("personal_info", make_personal_info_from_resume_id_loader_hash),
     ("experiences", make_experience_from_resume_id_loader_hash),
     ("languages", make_language_from_resume_id_loader_hash,),
+    (
+        "supplementary_skills",
+        make_supplementary_skill_from_resume_id_loader_hash,
+    ),  # noqa E501
 ):  # noqa E501
     setattr(
         Resume,
