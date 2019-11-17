@@ -12,6 +12,7 @@ from mypy_extensions import TypedDict
 from typing_extensions import Protocol
 
 from server.interfaces import TimestampLike, UUID_IdLike
+from server.apps.apps_commons import UUIDType
 
 PHOTO_ALREADY_UPLOADED = "___ALREADY_UPLOADED___"
 RESUME_TITLE_WITH_TIME = re.compile(r"^(.+?)_(\d{10})$")
@@ -23,7 +24,8 @@ class RatableEnumType(Enum):
 
 
 class TextOnlyEnumType(Enum):
-    resume_hobbies = "resume_hobbies"
+    resume_hobby = "resume_hobby"
+    education_achievement = "education_achievement"
 
 
 class ResumesLogicInterface(metaclass=ABCMeta):
@@ -31,7 +33,9 @@ class ResumesLogicInterface(metaclass=ABCMeta):
 
     @staticmethod
     @abstractstaticmethod
-    def save_data_url_encoded_file(base64_encoded_file: str) -> Tuple[str, str]:  # noqa
+    def save_data_url_encoded_file(
+        base64_encoded_file: str,
+    ) -> Tuple[str, str]:  # noqa E501
         pass
 
     @staticmethod
@@ -43,7 +47,7 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @abstractstaticmethod
     def create_personal_info(
         params: CreatePersonalInfoAttrs,
-    ) -> CreatePersonalInfoReturnType:  # noqa
+    ) -> CreatePersonalInfoReturnType:  # noqa E501
         pass
 
     @staticmethod
@@ -120,11 +124,11 @@ def uniquify_resume_title(title: str) -> str:
 class ResumeLike(UUID_IdLike, TimestampLike, Protocol):
     title: str
     description: str
-    user_id: str
+    user_id: UUIDType
 
 
 class CreateResumeRequiredAttrs(TypedDict):
-    user_id: str
+    user_id: UUIDType
     title: str
 
 
@@ -133,7 +137,7 @@ class CreateResumeAttrs(CreateResumeRequiredAttrs, total=False):
 
 
 class GetResumeAttrs(TypedDict):
-    user_id: str
+    user_id: UUIDType
     id: str
 
 
@@ -158,7 +162,7 @@ class CreateIndexableAttr(TypedDict):
 
 
 class CreateResumeComponentRequiredAttrs(TypedDict):
-    resume_id: str
+    resume_id: UUIDType
 
 
 class Indexable(Protocol):
@@ -175,7 +179,7 @@ class PersonalInfoLike(UUID_IdLike, TimestampLike, Protocol):
     phone: str
     date_of_birth: str
     photo: str
-    resume_id: str
+    resume_id: UUIDType
 
 
 class CreatePersonalInfoAttrs(CreateResumeComponentRequiredAttrs, total=False):
@@ -205,7 +209,7 @@ class EducationLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
     course: str
     from_date: str
     to_date: str
-    resume_id: str
+    resume_id: UUIDType
 
 
 class CreateEducationAttrs(
@@ -229,7 +233,7 @@ class ExperienceLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
     company_name: str
     from_date: str
     to_date: str
-    resume_id: str
+    resume_id: UUIDType
 
 
 class CreateExperienceAttrs(
@@ -250,7 +254,7 @@ CreateExperienceReturnType = Union[ExperienceLike, CreateResumeComponentErrors]
 
 class SkillLike(UUID_IdLike, TimestampLike, Indexable, Protocol):
     description: str
-    resume_id: str
+    resume_id: UUIDType
 
 
 class CreateSkillAttrs(
@@ -269,14 +273,14 @@ CreateSkillReturnType = Union[SkillLike, CreateResumeComponentErrors]
 class Ratable(UUID_IdLike, TimestampLike, Protocol):
     description: str
     level: str
-    owner_id: str
+    owner_id: UUIDType
     tag: RatableEnumType
 
 
 class CreateRatableRequiredAttrs(TypedDict):
     description: str
-    owner_id: str
-    user_id: str
+    owner_id: UUIDType
+    user_id: UUIDType
     tag: RatableEnumType
 
 
@@ -299,13 +303,13 @@ CreateRatableReturnType = Union[Ratable, CreateRatableErrorsType]
 
 class TextOnlyLike(UUID_IdLike, Protocol):
     text: str
-    owner_id: str
+    owner_id: UUIDType
     tag: TextOnlyEnumType
 
 
 class CreateTextOnlyAttr(TypedDict):
     text: str
-    owner_id: str
+    owner_id: UUIDType
     tag: TextOnlyEnumType
 
 

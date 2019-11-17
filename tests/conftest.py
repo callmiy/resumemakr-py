@@ -163,7 +163,7 @@ def personal_info_fragment():
 
 
 @pytest.fixture()
-def education_fragment():
+def education_fragment(text_only_fragment):
     return f"""
         fragment {education_fragment_name} on Education {{
            id
@@ -173,7 +173,12 @@ def education_fragment():
            school
            fromDate
            toDate
+
+           achievements {{
+               ...{text_only_fagment_name}
+           }}
         }}
+        {text_only_fragment}
     """
 
 
@@ -219,6 +224,10 @@ def resume_fragment(text_only_fragment):
             educations {{
                 id
                 resumeId
+                achievements {{
+                    id
+                    ownerId
+                }}
             }}
 
             skills {{

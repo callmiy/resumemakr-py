@@ -15,6 +15,7 @@ from server.apps.resumes.models import (
     SpokenLanguage,
     SupplementarySkill,
     ResumeHobby,
+    EducationAchievement,
 )  # noqa
 from server.apps.resumes.resumes_commons import (
     CreateEducationAttrs,
@@ -56,7 +57,8 @@ RATABLE_CLASSES_MAP: Mapping[RatableEnumType, Type[models.Model]] = {
 
 
 TEXT_ONLY_CLASSES_MAP: Mapping[TextOnlyEnumType, Type[models.Model]] = {
-    TextOnlyEnumType.resume_hobbies: ResumeHobby
+    TextOnlyEnumType.resume_hobby: ResumeHobby,
+    TextOnlyEnumType.education_achievement: EducationAchievement,
 }
 
 
@@ -64,16 +66,16 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     __slots__ = ()
 
     @staticmethod
-    def save_data_url_encoded_file(string: str) -> Tuple[str, str]:  # noqa
+    def save_data_url_encoded_file(string: str) -> Tuple[str, str]:  # noqa E501
         (
             bytes_string,
             file_name,
-        ) = bytes_and_file_name_from_data_url_encoded_string(  # noqa
+        ) = bytes_and_file_name_from_data_url_encoded_string(  # noqa  E501
             string
         )
         file_path = f"{settings.MEDIA_ROOT}/{file_name}"
 
-        with open(file_path, "wb") as storage_location:  # noqa
+        with open(file_path, "wb") as storage_location:
             storage_location.write(bytes_string)
             return f"{settings.MEDIA_URL}{file_name}", file_path
 
@@ -100,7 +102,7 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     @staticmethod
     def create_personal_info(
         params: CreatePersonalInfoAttrs,
-    ) -> CreatePersonalInfoReturnType:  # noqa
+    ) -> CreatePersonalInfoReturnType:  # noqa E501
         try:
             photo = params.get("photo")
 
@@ -117,13 +119,13 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     @staticmethod
     def create_experience(
         params: CreateExperienceAttrs,
-    ) -> CreateExperienceReturnType:  # noqa
+    ) -> CreateExperienceReturnType:  # noqa E501
         return cast(ExperienceLike, Experience(**params))
 
     @staticmethod
     def create_education(
         params: CreateEducationAttrs,
-    ) -> CreateEducationReturnType:  # noqa
+    ) -> CreateEducationReturnType:  # noqa E501
         education = Education(**params)
         education.save()
         return cast(EducationLike, education)

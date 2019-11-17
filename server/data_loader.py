@@ -10,18 +10,17 @@ from typing import (
     Optional,
     Tuple,
     TypeVar,
-    Union,
 )
-from uuid import UUID
 
 from promise import Promise
 from promise.dataloader import DataLoader
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import (
+from server.apps.resumes.resumes_commons import (  # noqa E501
     PersonalInfoLike,
     TextOnlyEnumType,
-)  # noqa E501
+)
+from server.apps.apps_commons import UUIDType
 
 T = TypeVar("T")
 IndexIdListType = List[Tuple[int, str]]
@@ -30,7 +29,6 @@ ResourceFromIdLoaderType = List[Tuple[int, Optional[T]]]
 TagType = str
 LoaderHashType = Tuple[TagType, str]
 BatchKeysType = Tuple[TagType, List[str]]
-UUIDType = Union[UUID, str]
 
 
 PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG = "0"
@@ -40,6 +38,7 @@ HOBBY_FROM_RESUME_ID_LOADER_TAG = "3"
 SKILL_FROM_RESUME_ID_LOADER_TAG = "4"
 SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG = "5"
 SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG = "6"
+ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG = "7"
 
 
 def make_personal_info_from_resume_id_loader_hash(
@@ -70,6 +69,12 @@ def make_hobby_from_resume_id_loader_hash(
     owner_id: UUIDType,
 ) -> LoaderHashType:  # noqa E501
     return (HOBBY_FROM_RESUME_ID_LOADER_TAG, str(owner_id))
+
+
+def make_achievement_from_education_id_loader_hash(
+    owner_id: UUIDType,
+) -> LoaderHashType:
+    return (ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG, str(owner_id))
 
 
 def personal_info_from_resume_id_loader(
@@ -128,8 +133,16 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
     HOBBY_FROM_RESUME_ID_LOADER_TAG: partial(
         resources_from_from_ids_loader,
         partial(
-            ResumesLogic.get_many_text_only, tag=TextOnlyEnumType.resume_hobbies
+            ResumesLogic.get_many_text_only, tag=TextOnlyEnumType.resume_hobby
         ),  # noqa E501
+        from_id_attr_name="owner_id",
+    ),
+    ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader,
+        partial(
+            ResumesLogic.get_many_text_only,
+            tag=TextOnlyEnumType.education_achievement,  # noqa E501
+        ),
         from_id_attr_name="owner_id",
     ),
 }

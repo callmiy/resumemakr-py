@@ -26,6 +26,7 @@ from server.data_loader import (  # noqa E501
     make_personal_info_from_resume_id_loader_hash,
     make_skill_from_resume_id_loader_hash,
     make_hobby_from_resume_id_loader_hash,
+    make_achievement_from_education_id_loader_hash,
 )
 
 
@@ -46,9 +47,9 @@ class Resume(ObjectType):
     supplementary_skills = graphene.List(lambda: Ratable)
 
     def resolve_hobbies(self, info, **args):
-        hash_str = make_hobby_from_resume_id_loader_hash(self.id)
-        loader = info.context.app_data_loader
-        return loader.load(hash_str)
+        return info.context.app_data_loader.load(
+            make_hobby_from_resume_id_loader_hash(self.id)
+        )
 
 
 def make_resume_resolver_fn(hash_fn):
@@ -271,6 +272,11 @@ class Education(ObjectType):
     from_date = graphene.String()
     to_date = graphene.String()
     achievements = graphene.List(lambda: TextOnly)
+
+    def resolve_achievements(self, info, **args):
+        return info.context.app_data_loader.load(
+            make_achievement_from_education_id_loader_hash(self.id)
+        )
 
 
 class CreateEducationInput(CreateIndexable, graphene.InputObjectType):

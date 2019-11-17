@@ -349,9 +349,20 @@ def test_get_all_resume_fields_succeeds(
         TextOnlyLike,
         ResumesLogic.create_text_only(
             CreateTextOnlyAttr(
-                tag=TextOnlyEnumType.resume_hobbies,
+                tag=TextOnlyEnumType.resume_hobby,
                 owner_id=resume_id,
-                text="love",  # noqa E501
+                text="rh",  # noqa E501
+            )
+        ),
+    )
+
+    education_achievement = cast(
+        TextOnlyLike,
+        ResumesLogic.create_text_only(
+            CreateTextOnlyAttr(
+                tag=TextOnlyEnumType.education_achievement,
+                owner_id=education.id,
+                text="ea",  # noqa E501
             )
         ),
     )
@@ -366,11 +377,14 @@ def test_get_all_resume_fields_succeeds(
     assert resume_map["id"] == resume_id
     assert resume_map["personalInfo"]["id"] == str(personal_info.id)
 
-    education_object = resume_map["educations"][0]
-    assert education_object["id"] == str(education.id)
+    education_obj = resume_map["educations"][0]
+    assert education_obj["id"] == str(education.id)
 
-    skill_object = resume_map["skills"][0]
-    assert skill_object["id"] == str(skill.id)
+    education_achievement_obj = education_obj["achievements"][0]
+    assert education_achievement_obj["id"] == str(education_achievement.id)
 
-    hobby_object = resume_map["hobbies"][0]
-    assert hobby_object["id"] == str(hobby.id)
+    skill_obj = resume_map["skills"][0]
+    assert skill_obj["id"] == str(skill.id)
+
+    hobby_obj = resume_map["hobbies"][0]
+    assert hobby_obj["id"] == str(hobby.id)
