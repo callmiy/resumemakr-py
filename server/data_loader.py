@@ -23,7 +23,7 @@ from server.apps.resumes.resumes_commons import (  # noqa E501
 from server.apps.apps_commons import UUIDType
 
 T = TypeVar("T")
-IndexIdListType = List[Tuple[int, str]]
+IndexIdListType = List[Tuple[int, UUIDType]]
 ResourceListFromIdLoaderType = List[Tuple[int, List[Optional[T]]]]
 ResourceFromIdLoaderType = List[Tuple[int, Optional[T]]]
 TagType = str
@@ -39,6 +39,7 @@ SKILL_FROM_RESUME_ID_LOADER_TAG = "4"
 SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG = "5"
 SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG = "6"
 ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG = "7"
+ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG = "8"
 
 
 def make_personal_info_from_resume_id_loader_hash(
@@ -56,7 +57,7 @@ def make_education_from_resume_id_loader_hash(
 def make_experience_from_resume_id_loader_hash(
     resume_id: UUIDType,
 ) -> LoaderHashType:  # noqa E501
-    return (EDUCATION_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
+    return (EXPERIENCE_FROM_RESUME_ID_LOADER_TAG, str(resume_id))
 
 
 def make_skill_from_resume_id_loader_hash(
@@ -95,14 +96,14 @@ def resources_from_from_ids_loader(
     index_arg_id_list: IndexIdListType,
     from_id_attr_name: str = "resume_id",
 ) -> ResourceListFromIdLoaderType[T]:
-    from_ids_list: List[str] = []
-    from_id_index_map: MutableMapping[str, int] = {}
+    from_ids_list: List[UUIDType] = []
+    from_id_index_map: MutableMapping[UUIDType, int] = {}
 
     for (index, from_id) in index_arg_id_list:
         from_ids_list.append(from_id)
         from_id_index_map[from_id] = index
 
-    from_id_to_resource_map: MutableMapping[str, List[Optional[T]]] = {}
+    from_id_to_resource_map: MutableMapping[UUIDType, List[Optional[T]]] = {}
 
     for p in resource_getter_fn(from_ids_list):
         from_id = str(getattr(p, from_id_attr_name))
@@ -126,6 +127,9 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
     PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG: personal_info_from_resume_id_loader,  # noqa E501
     EDUCATION_FROM_RESUME_ID_LOADER_TAG: partial(
         resources_from_from_ids_loader, ResumesLogic.get_educations
+    ),
+    EXPERIENCE_FROM_RESUME_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader, ResumesLogic.get_experiences
     ),
     SKILL_FROM_RESUME_ID_LOADER_TAG: partial(
         resources_from_from_ids_loader, ResumesLogic.get_skills

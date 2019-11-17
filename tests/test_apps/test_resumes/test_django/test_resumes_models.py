@@ -18,6 +18,8 @@ from server.apps.resumes.resumes_commons import (  # noqa
     CreateTextOnlyAttr,
     TextOnlyLike,
     TextOnlyEnumType,
+    CreateExperienceAttrs,
+    ExperienceLike,
 )
 from server.data_loader import AppDataLoader
 
@@ -325,6 +327,17 @@ def test_get_all_resume_fields_succeeds(
     user, resume = user_and_resume_fixture
     resume_id = str(resume.id)
 
+    hobby = cast(
+        TextOnlyLike,
+        ResumesLogic.create_text_only(
+            CreateTextOnlyAttr(
+                tag=TextOnlyEnumType.resume_hobby,
+                owner_id=resume_id,
+                text="rh",  # noqa E501
+            )
+        ),
+    )
+
     _personal_info = ResumesLogic.create_personal_info(
         CreatePersonalInfoAttrs(resume_id=resume_id, first_name="kanmii")
     )
@@ -338,24 +351,6 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
-    skill = cast(
-        SkillLike,
-        ResumesLogic.create_skill(
-            CreateSkillAttrs(resume_id=resume_id, index=0)
-        ),  # noqa E501
-    )
-
-    hobby = cast(
-        TextOnlyLike,
-        ResumesLogic.create_text_only(
-            CreateTextOnlyAttr(
-                tag=TextOnlyEnumType.resume_hobby,
-                owner_id=resume_id,
-                text="rh",  # noqa E501
-            )
-        ),
-    )
-
     education_achievement = cast(
         TextOnlyLike,
         ResumesLogic.create_text_only(
@@ -364,6 +359,20 @@ def test_get_all_resume_fields_succeeds(
                 owner_id=education.id,
                 text="ea",  # noqa E501
             )
+        ),
+    )
+
+    skill = cast(
+        SkillLike,
+        ResumesLogic.create_skill(
+            CreateSkillAttrs(resume_id=resume_id, index=0)
+        ),  # noqa E501
+    )
+
+    experience = cast(
+        ExperienceLike,
+        ResumesLogic.create_experience(
+            CreateExperienceAttrs(resume_id=resume_id, index=0)
         ),
     )
 
@@ -388,3 +397,6 @@ def test_get_all_resume_fields_succeeds(
 
     hobby_obj = resume_map["hobbies"][0]
     assert hobby_obj["id"] == str(hobby.id)
+
+    experience_obj = resume_map["experiences"][0]
+    assert experience_obj["id"] == str(experience.id)

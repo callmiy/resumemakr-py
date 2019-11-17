@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import Tuple, cast, List, Type, Mapping
+from typing import List, Mapping, Tuple, Type, cast
 
 from django.conf import settings
-from django.db import IntegrityError, transaction, models
+from django.db import IntegrityError, models, transaction
 
-from server.apps.resumes.models import (
+from server.apps.resumes.models import (  # noqa
     Education,
+    EducationAchievement,
     Experience,
     PersonalInfo,
     Resume,
+    ResumeHobby,
     Skill,
     SpokenLanguage,
     SupplementarySkill,
-    ResumeHobby,
-    EducationAchievement,
-)  # noqa
+)
 from server.apps.resumes.resumes_commons import (
     CreateEducationAttrs,
     CreateEducationReturnType,
@@ -24,31 +24,32 @@ from server.apps.resumes.resumes_commons import (
     CreateExperienceReturnType,
     CreatePersonalInfoAttrs,
     CreatePersonalInfoReturnType,
+    CreateRatableAttrs,
+    CreateRatableReturnType,
     CreateResumeAttrs,
     CreateResumeComponentErrors,
+    CreateSkillAttrs,
+    CreateSkillReturnType,
+    CreateTextOnlyAttr,
+    CreateTextOnlyReturnType,
     EducationLike,
     ExperienceLike,
     GetResumeAttrs,
     MaybeResume,
     PersonalInfoLike,
-    ResumeLike,
-    ResumesLogicInterface,
-    uniquify_resume_title,
-    SkillLike,
-    CreateSkillAttrs,
-    CreateSkillReturnType,
-    CreateRatableAttrs,
-    CreateRatableReturnType,
     Ratable,
     RatableEnumType,
-    TextOnlyLike,
-    CreateTextOnlyAttr,
-    CreateTextOnlyReturnType,
+    ResumeLike,
+    ResumesLogicInterface,
+    SkillLike,
     TextOnlyEnumType,
+    TextOnlyLike,
+    uniquify_resume_title,
 )
-from server.file_upload_utils import (
+from server.file_upload_utils import (  # noqa
     bytes_and_file_name_from_data_url_encoded_string,
-)  # noqa
+)
+from server.apps.apps_commons import UUIDType
 
 RATABLE_CLASSES_MAP: Mapping[RatableEnumType, Type[models.Model]] = {
     RatableEnumType.spoken_language: SpokenLanguage,
@@ -120,7 +121,9 @@ class ResumesDjangoLogic(ResumesLogicInterface):
     def create_experience(
         params: CreateExperienceAttrs,
     ) -> CreateExperienceReturnType:  # noqa E501
-        return cast(ExperienceLike, Experience(**params))
+        experience = Experience(**params)
+        experience.save()
+        return cast(ExperienceLike, experience)
 
     @staticmethod
     def create_education(
@@ -147,19 +150,26 @@ class ResumesDjangoLogic(ResumesLogicInterface):
         return ratable
 
     @staticmethod
-    def get_personal_infos(resume_ids: List[str]) -> List[PersonalInfoLike]:
+    def get_personal_infos(
+        resume_ids: List[UUIDType],
+    ) -> List[PersonalInfoLike]:  # noqa E501
         personal_infos = PersonalInfo.objects.filter(resume_id__in=resume_ids)
         return cast(List[PersonalInfoLike], personal_infos)
 
     @staticmethod
-    def get_educations(resume_ids: List[str]) -> List[EducationLike]:
+    def get_educations(resume_ids: List[UUIDType]) -> List[EducationLike]:
         educations = Education.objects.filter(resume_id__in=resume_ids)
         return cast(List[EducationLike], educations)
 
     @staticmethod
-    def get_skills(resume_ids: List[str]) -> List[SkillLike]:
+    def get_skills(resume_ids: List[UUIDType]) -> List[SkillLike]:
         skills = Skill.objects.filter(resume_id__in=resume_ids)
         return cast(List[SkillLike], skills)
+
+    @staticmethod
+    def get_experiences(resume_ids: List[UUIDType]) -> List[ExperienceLike]:
+        experiences = Experience.objects.filter(resume_id__in=resume_ids)
+        return cast(List[ExperienceLike], experiences)
 
     @staticmethod
     def create_text_only(
@@ -174,7 +184,7 @@ class ResumesDjangoLogic(ResumesLogicInterface):
 
     @staticmethod
     def get_many_text_only(
-        owner_ids: List[str], tag: TextOnlyEnumType,
+        owner_ids: List[UUIDType], tag: TextOnlyEnumType,
     ) -> List[TextOnlyLike]:
         text_only_list = TEXT_ONLY_CLASSES_MAP[tag].objects.filter(
             owner_id__in=owner_ids

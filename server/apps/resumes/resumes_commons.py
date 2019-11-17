@@ -26,6 +26,7 @@ class RatableEnumType(Enum):
 class TextOnlyEnumType(Enum):
     resume_hobby = "resume_hobby"
     education_achievement = "education_achievement"
+    experience_achievement = "experience_achievement"
 
 
 class ResumesLogicInterface(metaclass=ABCMeta):
@@ -82,18 +83,23 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractstaticmethod
     def get_personal_infos(
-        resume_ids: List[str],
+        resume_ids: List[UUIDType],
     ) -> List[PersonalInfoLike]:  # noqa E501
         pass
 
     @staticmethod
     @abstractstaticmethod
-    def get_educations(resume_ids: List[str]) -> List[EducationLike]:
+    def get_educations(resume_ids: List[UUIDType]) -> List[EducationLike]:
         pass
 
     @staticmethod
     @abstractstaticmethod
-    def get_skills(resume_ids: List[str]) -> List[SkillLike]:
+    def get_skills(resume_ids: List[UUIDType]) -> List[SkillLike]:
+        pass
+
+    @staticmethod
+    @abstractstaticmethod
+    def get_experiences(resume_ids: List[UUIDType]) -> List[ExperienceLike]:
         pass
 
     @staticmethod
@@ -104,7 +110,7 @@ class ResumesLogicInterface(metaclass=ABCMeta):
     @staticmethod
     @abstractstaticmethod
     def get_many_text_only(
-        owner_ids: List[str], tag: TextOnlyEnumType,
+        owner_ids: List[UUIDType], tag: TextOnlyEnumType,
     ) -> List[TextOnlyLike]:
         pass
 

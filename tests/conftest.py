@@ -238,6 +238,15 @@ def resume_fragment(text_only_fragment):
             hobbies {{
                 ...{text_only_fagment_name}
             }}
+
+            experiences {{
+                id
+                resumeId
+                achievements {{
+                    id
+                    ownerId
+                }}
+            }}
         }}
 
         {text_only_fragment}
