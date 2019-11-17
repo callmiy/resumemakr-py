@@ -233,6 +233,10 @@ def resume_fragment(text_only_fragment):
             skills {{
                 id
                 resumeId
+                achievements {{
+                    id
+                    ownerId
+                }}
             }}
 
             hobbies {{

@@ -369,6 +369,17 @@ def test_get_all_resume_fields_succeeds(
         ),  # noqa E501
     )
 
+    skill_achievement = cast(
+        TextOnlyLike,
+        ResumesLogic.create_text_only(
+            CreateTextOnlyAttr(
+                tag=TextOnlyEnumType.skill_achievement,
+                owner_id=skill.id,
+                text="sa",  # noqa E501
+            )
+        ),
+    )
+
     experience = cast(
         ExperienceLike,
         ResumesLogic.create_experience(
@@ -405,6 +416,8 @@ def test_get_all_resume_fields_succeeds(
 
     skill_obj = resume_map["skills"][0]
     assert skill_obj["id"] == str(skill.id)
+    skill_achievement_obj = skill_obj["achievements"][0]
+    assert skill_achievement_obj["id"] == str(skill_achievement.id)
 
     hobby_obj = resume_map["hobbies"][0]
     assert hobby_obj["id"] == str(hobby.id)
