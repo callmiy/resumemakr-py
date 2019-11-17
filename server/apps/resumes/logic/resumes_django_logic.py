@@ -18,6 +18,7 @@ from server.apps.resumes.models import (  # noqa
     SpokenLanguage,
     SupplementarySkill,
     ExperienceAchievement,
+    SkillAchievement,
 )
 from server.apps.resumes.resumes_commons import (
     CreateEducationAttrs,
@@ -62,6 +63,7 @@ TEXT_ONLY_CLASSES_MAP: Mapping[TextOnlyEnumType, Type[models.Model]] = {
     TextOnlyEnumType.resume_hobby: ResumeHobby,
     TextOnlyEnumType.education_achievement: EducationAchievement,
     TextOnlyEnumType.experience_achievement: ExperienceAchievement,
+    TextOnlyEnumType.skill_achievement: SkillAchievement
 }
 
 

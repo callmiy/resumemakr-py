@@ -29,6 +29,7 @@ from server.data_loader import (  # noqa E501
     make_achievement_from_education_id_loader_hash,
     make_experience_from_resume_id_loader_hash,
     make_achievement_from_experience_id_loader_hash,
+    make_achievement_from_skill_id_loader_hash,
 )
 
 
@@ -339,6 +340,11 @@ class Skill(ObjectType):
 
     description = graphene.String()
     achievements = graphene.List(lambda: TextOnly)
+
+    def resolve_achievements(self, info, **args):
+        return info.context.app_data_loader.load(
+            make_achievement_from_skill_id_loader_hash(self.id)
+        )
 
 
 class CreateSkillInput(CreateIndexable, graphene.InputObjectType):

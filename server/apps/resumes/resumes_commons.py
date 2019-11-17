@@ -27,6 +27,7 @@ class TextOnlyEnumType(Enum):
     resume_hobby = "resume_hobby"
     education_achievement = "education_achievement"
     experience_achievement = "experience_achievement"
+    skill_achievement = "skill_achievement"
 
 
 class ResumesLogicInterface(metaclass=ABCMeta):

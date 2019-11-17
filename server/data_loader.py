@@ -39,6 +39,7 @@ SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG = "5"
 SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG = "6"
 ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG = "7"
 ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG = "8"
+ACHIEVEMENT_FROM_SKILL_ID_LOADER_TAG = "9"
 
 
 def make_personal_info_from_resume_id_loader_hash(
@@ -81,6 +82,10 @@ def make_achievement_from_experience_id_loader_hash(
     owner_id: UUIDType,
 ) -> BatchKeyType:
     return (ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG, str(owner_id))
+
+
+def make_achievement_from_skill_id_loader_hash(owner_id: UUIDType,) -> BatchKeyType:
+    return (ACHIEVEMENT_FROM_SKILL_ID_LOADER_TAG, str(owner_id))
 
 
 def personal_info_from_resume_id_loader(
@@ -159,6 +164,14 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         partial(
             ResumesLogic.get_many_text_only,
             tag=TextOnlyEnumType.experience_achievement,  # noqa E501
+        ),
+        from_id_attr_name="owner_id",
+    ),
+    ACHIEVEMENT_FROM_SKILL_ID_LOADER_TAG: partial(
+        resources_from_from_ids_loader,
+        partial(
+            ResumesLogic.get_many_text_only,
+            tag=TextOnlyEnumType.skill_achievement,  # noqa E501
         ),
         from_id_attr_name="owner_id",
     ),
