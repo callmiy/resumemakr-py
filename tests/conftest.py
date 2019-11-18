@@ -19,7 +19,14 @@ from graphene.test import Client
 from server.apps.accounts.logic import AccountsLogic
 from server.apps.graphql_schema import graphql_schema
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import CreateSkillAttrs, SkillLike
+from server.apps.resumes.resumes_commons import (
+    CreateSkillAttrs,
+    SkillLike,
+    EducationLike,
+    CreateEducationAttrs,
+    ExperienceLike,
+    CreateExperienceAttrs,
+)
 from server.file_upload_utils import data_url_encoded_string_delimiter
 
 typename = "__typename"
@@ -467,7 +474,6 @@ def create_text_only_query():
             }}
         }}
     """
-    pass
 
 
 @pytest.fixture()
@@ -481,4 +487,35 @@ def make_skill_fixture():
         )
 
         return skill
+
     return create_skill
+
+
+@pytest.fixture()
+def make_education_fixture():
+    def create_education(resume_id, index=0):
+        education = cast(
+            EducationLike,
+            ResumesLogic.create_education(
+                CreateEducationAttrs(resume_id=resume_id, index=index)
+            ),  # noqa E501
+        )
+
+        return education
+
+    return create_education
+
+
+@pytest.fixture()
+def make_experience_fixture():
+    def create_experience(resume_id, index=0):
+        experience = cast(
+            ExperienceLike,
+            ResumesLogic.create_experience(
+                CreateExperienceAttrs(resume_id=resume_id, index=index)
+            ),  # noqa E501
+        )
+
+        return experience
+
+    return create_experience

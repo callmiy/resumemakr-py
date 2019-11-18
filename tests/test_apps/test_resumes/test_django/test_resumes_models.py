@@ -327,7 +327,8 @@ def test_get_all_resume_fields_succeeds(
     graphql_client,
     user_and_resume_fixture,
     get_resume_query,
-    make_skill_fixture,  # noqa E501
+    make_skill_fixture,
+    make_education_fixture,
 ):
     user, resume = user_and_resume_fixture
     resume_id = str(resume.id)
@@ -350,12 +351,7 @@ def test_get_all_resume_fields_succeeds(
         ),
     )
 
-    education = cast(
-        EducationLike,
-        ResumesLogic.create_education(
-            CreateEducationAttrs(resume_id=resume_id, index=0)
-        ),
-    )
+    education = make_education_fixture(resume_id)
 
     education_achievement = cast(
         TextOnlyLike,
@@ -454,3 +450,57 @@ def test_get_all_resume_fields_succeeds(
 
     supplementary_skill_obj = resume_map["supplementarySkills"][0]
     assert supplementary_skill_obj["id"] == str(supplementary_skill.id)
+
+
+def test_create_resume_hobby_succeeds(
+    user_and_resume_fixture, create_text_only_query, graphql_client
+):
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    result = graphql_client(
+        create_text_only_query,
+        variables={"ownerId": resume_id, "text": "aa"},
+        context=Context(current_user=user, app_data_loader=AppDataLoader()),  # noqa
+    )
+
+    hobby = result["data"]["createTextOnly"]["textOnly"]
+
+    assert hobby["ownerId"] == resume_id
+    assert hobby["tag"] == TextOnlyEnumType.resume_hobby.name
+
+
+def test_create_resume_child_text_only_child_succeeds(
+    user_and_resume_fixture,
+    create_text_only_query,
+    graphql_client,
+    make_education_fixture,
+    make_experience_fixture,
+    make_skill_fixture,
+):
+    user, resume = user_and_resume_fixture
+    resume_id = str(resume.id)
+
+    for fixture_fn, tag_name in (
+        (make_education_fixture, TextOnlyEnumType.education_achievement.name,),
+        (make_skill_fixture, TextOnlyEnumType.skill_achievement.name,),
+        (
+            make_experience_fixture,
+            TextOnlyEnumType.experience_achievement.name,
+        ),  # noqa E501
+    ):
+
+        owner = fixture_fn(resume_id)
+
+        owner_id_str = str(owner.id)
+
+        result = graphql_client(
+            create_text_only_query,
+            variables={"ownerId": owner_id_str, "text": "aa"},
+            context=Context(current_user=user, app_data_loader=AppDataLoader()),  # noqa
+        )
+
+        text_only_obj = result["data"]["createTextOnly"]["textOnly"]
+
+        assert text_only_obj["ownerId"] == owner_id_str
+        assert text_only_obj["tag"] == tag_name
