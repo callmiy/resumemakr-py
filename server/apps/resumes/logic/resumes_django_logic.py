@@ -20,7 +20,7 @@ from server.apps.resumes.models import (  # noqa
     ExperienceAchievement,
     SkillAchievement,
 )
-from server.apps.resumes.resumes_commons import (
+from server.apps.resumes.resumes_types import (
     CreateEducationAttrs,
     CreateEducationReturnType,
     CreateExperienceAttrs,

@@ -6,7 +6,7 @@ import pytest
 from graphene import Context
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import (  # noqa
+from server.apps.resumes.resumes_types import (  # noqa
     CreatePersonalInfoAttrs,
     CreateResumeAttrs,
     PersonalInfoLike,

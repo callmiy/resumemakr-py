@@ -16,7 +16,7 @@ from promise import Promise
 from promise.dataloader import DataLoader
 
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import (  # noqa E501
+from server.apps.resumes.resumes_types import (  # noqa E501
     PersonalInfoLike,
     TextOnlyEnumType,
     RatableEnumType,

@@ -19,7 +19,8 @@ from graphene.test import Client
 from server.apps.accounts.logic import AccountsLogic
 from server.apps.graphql_schema import graphql_schema
 from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_commons import (
+from server.apps.resumes.resumes_types
+import (
     CreateSkillAttrs,
     SkillLike,
     EducationLike,
