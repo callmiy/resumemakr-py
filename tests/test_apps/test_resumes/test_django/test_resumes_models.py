@@ -458,10 +458,10 @@ def test_create_resume_hobby_succeeds(
     user, resume = user_and_resume_fixture
     resume_id = str(resume.id)
 
-    result = graphql_client(
+    result = graphql_client.execute(
         create_text_only_query,
         variables={"ownerId": resume_id, "text": "aa"},
-        context=Context(current_user=user, app_data_loader=AppDataLoader()),  # noqa
+        context=Context(current_user=user, app_data_loader=AppDataLoader()),
     )
 
     hobby = result["data"]["createTextOnly"]["textOnly"]
@@ -494,10 +494,10 @@ def test_create_resume_child_text_only_child_succeeds(
 
         owner_id_str = str(owner.id)
 
-        result = graphql_client(
+        result = graphql_client.execute(
             create_text_only_query,
             variables={"ownerId": owner_id_str, "text": "aa"},
-            context=Context(current_user=user, app_data_loader=AppDataLoader()),  # noqa
+            context=Context(current_user=user, app_data_loader=AppDataLoader()),
         )
 
         text_only_obj = result["data"]["createTextOnly"]["textOnly"]
