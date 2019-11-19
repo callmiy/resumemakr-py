@@ -3,13 +3,13 @@
 import graphene
 from graphene_django.types import ObjectType
 
-from server.apps.accounts.accounts_commons import (
+from logics.accounts.accounts_types import (
     UserRegistrationError,
     USER_LOGIN_ERROR_MESSAGE,
 )
-from server.apps.accounts.logic import AccountsLogic, user_to_jwt
+from logics.accounts import AccountsLogic, user_to_jwt
 
-from server.apps.graphql_schema_commons import TimestampsInterface
+from logics.logics_utils import TimestampsInterface
 
 
 class User(ObjectType):

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from server.apps.resumes.resumes_types import (
+from logics.resumes.resumes_types import (
     uniquify_resume_title,
     RESUME_TITLE_WITH_TIME,
 )

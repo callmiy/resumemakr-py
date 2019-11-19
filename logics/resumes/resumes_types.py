@@ -11,8 +11,8 @@ from typing import List, NamedTuple, Optional, Tuple, Union
 from mypy_extensions import TypedDict
 from typing_extensions import Protocol
 
-from server.interfaces import TimestampLike, UUID_IdLike
-from server.apps.apps_commons import UUIDType
+from logics.logics_utils import TimestampLike, UUID_IdLike
+from logics.logics_utils import UUIDType
 
 PHOTO_ALREADY_UPLOADED = "___ALREADY_UPLOADED___"
 RESUME_TITLE_WITH_TIME = re.compile(r"^(.+?)_(\d{10})$")

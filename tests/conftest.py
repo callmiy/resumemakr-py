@@ -11,24 +11,19 @@ It may be also used for extending doctest's context:
 import base64
 import os
 from pathlib import PurePath
-from typing import cast
 
 import pytest
 from graphene.test import Client
 
-from server.apps.accounts.logic import AccountsLogic
-from server.apps.graphql_schema import graphql_schema
-from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_types
-import (
+from logics.accounts import AccountsLogic
+from logics.graphql_schema import graphql_schema
+from logics.resumes import ResumesLogic
+from logics.resumes.resumes_types import (
     CreateSkillAttrs,
-    SkillLike,
-    EducationLike,
     CreateEducationAttrs,
-    ExperienceLike,
     CreateExperienceAttrs,
 )
-from server.file_upload_utils import data_url_encoded_string_delimiter
+from logics.logics_utils import data_url_encoded_string_delimiter
 
 typename = "__typename"
 user_fragment_name = "UserFragment"
@@ -480,14 +475,9 @@ def create_text_only_query():
 @pytest.fixture()
 def make_skill_fixture():
     def create_skill(resume_id, index=0):
-        skill = cast(
-            SkillLike,
-            ResumesLogic.create_skill(
-                CreateSkillAttrs(resume_id=resume_id, index=index)
-            ),  # noqa E501
-        )
-
-        return skill
+        return ResumesLogic.create_skill(
+            CreateSkillAttrs(resume_id=resume_id, index=index)
+        )  # noqa E501
 
     return create_skill
 
@@ -495,14 +485,9 @@ def make_skill_fixture():
 @pytest.fixture()
 def make_education_fixture():
     def create_education(resume_id, index=0):
-        education = cast(
-            EducationLike,
-            ResumesLogic.create_education(
-                CreateEducationAttrs(resume_id=resume_id, index=index)
-            ),  # noqa E501
-        )
-
-        return education
+        return ResumesLogic.create_education(
+            CreateEducationAttrs(resume_id=resume_id, index=index)
+        )  # noqa E501
 
     return create_education
 
@@ -510,12 +495,9 @@ def make_education_fixture():
 @pytest.fixture()
 def make_experience_fixture():
     def create_experience(resume_id, index=0):
-        experience = cast(
-            ExperienceLike,
-            ResumesLogic.create_experience(
-                CreateExperienceAttrs(resume_id=resume_id, index=index)
-            ),  # noqa E501
-        )
+        experience = ResumesLogic.create_experience(
+            CreateExperienceAttrs(resume_id=resume_id, index=index)
+        )  # noqa E501
 
         return experience
 

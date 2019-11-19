@@ -5,7 +5,7 @@ from typing import Mapping, NamedTuple, Optional, Tuple, Union
 
 from typing_extensions import Protocol
 
-from server.interfaces import TimestampLike, UUID_IdLike
+from logics.logics_utils import TimestampLike, UUID_IdLike
 
 
 class UserLike(UUID_IdLike, TimestampLike, Protocol):

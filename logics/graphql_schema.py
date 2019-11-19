@@ -4,10 +4,10 @@
 from graphene import ObjectType, Schema, Field
 from graphene_django.debug import DjangoDebug
 
-from server.apps.accounts.accounts_graphql_schema import (
+from logics.accounts.accounts_graphql_schema import (
     AccountsCombinedMutation,
 )  # noqa
-from server.apps.resumes.resumes_graphql_schema import (
+from logics.resumes.resumes_graphql_schema import (
     ResumesCombinedMutation,
     ResumesCombinedQuery,
 )

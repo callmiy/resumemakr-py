@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from server.apps.accounts.logic import user_from_jwt
-from server.data_loader import AppDataLoader
+from logics.accounts import user_from_jwt
+from logics.data_loader import AppDataLoader
 
 
 def set_graphql_context_middleware(get_response):

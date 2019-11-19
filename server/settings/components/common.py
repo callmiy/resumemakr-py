@@ -154,4 +154,4 @@ X_FRAME_OPTIONS = "DENY"
 EMAIL_TIMEOUT = 5
 
 
-GRAPHENE = {"SCHEMA": "server.apps.graphql_schema.graphql_schema"}
+GRAPHENE = {"SCHEMA": "logics.graphql_schema.graphql_schema"}

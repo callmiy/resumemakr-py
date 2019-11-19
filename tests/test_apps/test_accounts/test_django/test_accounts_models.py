@@ -3,11 +3,11 @@
 import pytest
 from graphene.test import Client
 
-from server.apps.accounts.accounts_commons import (  # noqa
+from logics.accounts.accounts_types import (  # noqa
     ATTRIBUTE_NOT_UNIQUE_ERROR_MESSAGE,
     USER_LOGIN_ERROR_MESSAGE,
 )
-from server.apps.accounts.logic import (
+from logics.accounts import (
     AccountsLogic,  # noqa
     user_params_to_graphql_variable,
 )

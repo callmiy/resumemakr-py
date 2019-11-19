@@ -6,7 +6,10 @@ from typing import List, Mapping, Tuple, Type, cast, Optional
 from django.conf import settings
 from django.db import IntegrityError, models, transaction
 
-from server.apps.apps_commons import UUIDType
+from logics.logics_utils import (
+    UUIDType,
+    bytes_and_file_name_from_data_url_encoded_string,
+)
 from server.apps.resumes.models import (  # noqa
     Education,
     EducationAchievement,
@@ -20,7 +23,7 @@ from server.apps.resumes.models import (  # noqa
     ExperienceAchievement,
     SkillAchievement,
 )
-from server.apps.resumes.resumes_types import (
+from logics.resumes.resumes_types import (
     CreateEducationAttrs,
     CreateEducationReturnType,
     CreateExperienceAttrs,
@@ -49,9 +52,6 @@ from server.apps.resumes.resumes_types import (
     TextOnlyLike,
     uniquify_resume_title,
     TextOnlyOwnersUnion,
-)
-from server.file_upload_utils import (  # noqa
-    bytes_and_file_name_from_data_url_encoded_string,
 )
 
 RATABLE_CLASSES_MAP: Mapping[RatableEnumType, Type[models.Model]] = {

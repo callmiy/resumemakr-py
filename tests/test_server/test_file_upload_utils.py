@@ -2,7 +2,7 @@
 
 import os
 
-from server.apps.resumes.logic import ResumesLogic
+from logics.resumes import ResumesLogic
 
 
 def test_success(data_url_encoded_file, settings):

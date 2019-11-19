@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.db import transaction
 from django.db.utils import IntegrityError
 
-from server.apps.accounts.accounts_commons import (
+from logics.accounts.accounts_types import (
     AccountsLogicInterface,
     UserCredentialTupleType,
     UserLoginType,

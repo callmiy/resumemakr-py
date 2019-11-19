@@ -1,9 +1,9 @@
 from typing import Mapping
 
-from server.apps.accounts.accounts_commons import UserLike, MaybeUser
-from server.apps.jwt_utils.jwt_utils import JwtManager
+from logics.accounts.accounts_types import UserLike, MaybeUser
+from logics.jwt_utils.jwt_utils import JwtManager
 
-from .accounts_logic_django import AccountsLogicDjango
+from server.apps.accounts.accounts_logic_django import AccountsLogicDjango
 
 AccountsLogic = AccountsLogicDjango
 

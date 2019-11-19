@@ -5,9 +5,9 @@ from typing import cast
 import graphene
 from graphene.types import Interface, ObjectType
 
-from server.apps.graphql_schema_commons import TimestampsInterface
-from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_types import (  # noqa
+from logics.logics_utils import TimestampsInterface
+from logics.resumes import ResumesLogic
+from logics.resumes.resumes_types import (  # noqa
     PHOTO_ALREADY_UPLOADED,
     CreateEducationAttrs,
     CreateExperienceAttrs,
@@ -23,7 +23,7 @@ from server.apps.resumes.resumes_types import (  # noqa
     CreateTextOnlyErrorsType,
     CreateTextOnlyAttr,
 )
-from server.data_loader import (  # noqa E501
+from logics.data_loader import (  # noqa E501
     make_education_from_resume_id_loader_hash,
     make_personal_info_from_resume_id_loader_hash,
     make_skill_from_resume_id_loader_hash,

@@ -5,8 +5,8 @@ from typing import cast, NamedTuple
 import pytest
 from graphene import Context
 
-from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_types import (  # noqa
+from logics.resumes import ResumesLogic
+from logics.resumes.resumes_types import (  # noqa
     CreatePersonalInfoAttrs,
     CreateResumeAttrs,
     PersonalInfoLike,
@@ -23,7 +23,7 @@ from server.apps.resumes.resumes_types import (  # noqa
     CreateRatableAttrs,
     Ratable,
 )
-from server.data_loader import AppDataLoader
+from logics.data_loader import AppDataLoader
 
 pytestmark = pytest.mark.django_db
 

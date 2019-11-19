@@ -15,13 +15,13 @@ from typing import (
 from promise import Promise
 from promise.dataloader import DataLoader
 
-from server.apps.resumes.logic import ResumesLogic
-from server.apps.resumes.resumes_types import (  # noqa E501
+from logics.resumes import ResumesLogic
+from logics.resumes.resumes_types import (  # noqa E501
     PersonalInfoLike,
     TextOnlyEnumType,
     RatableEnumType,
 )
-from server.apps.apps_commons import UUIDType
+from logics.logics_utils import UUIDType
 
 T = TypeVar("T")
 IndexIdListType = List[Tuple[int, UUIDType]]
