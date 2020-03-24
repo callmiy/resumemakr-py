@@ -20,7 +20,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "3.7.5"
+python = "3.7.7"
 django = "^2.2"
 django-split-settings = "^1.0"
 django-health-check = "^3.11"
@@ -67,5 +67,5 @@ dotenv-linter = "^0.1"
 polint = "^0.4"
 dennis = "^0.9"
 rope = "^0.14.0"
-black = { version = "^19.10b0",  git = "https://github.com/psf/black.git", branch = "6bedb5c" }
+black = { git = "https://github.com/psf/black.git", tag = "6bedb5c" }
 isort = "^4.3"

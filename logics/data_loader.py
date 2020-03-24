@@ -106,7 +106,7 @@ def make_supplementary_skill_from_resume_id_loader_hash(
 def personal_info_from_resume_id_loader(
     index_resume_id_list: IndexIdListType,
 ) -> ResourceFromIdLoaderType[PersonalInfoLike]:
-    index_personal_info_list = resources_from_from_ids_loader(
+    index_personal_info_list = resources_from_ids_loader(
         ResumesLogic.get_personal_infos, index_resume_id_list
     )  # noqa E501
 
@@ -116,7 +116,7 @@ def personal_info_from_resume_id_loader(
     ]  # noqa E501
 
 
-def resources_from_from_ids_loader(
+def resources_from_ids_loader(
     resource_getter_fn: Callable[[List[UUIDType]], List[T]],
     index_arg_id_list: IndexIdListType,
     from_id_attr_name: str = "resume_id",
@@ -151,23 +151,23 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
 ] = {  # noqa E501
     PERSONAL_INFO_FROM_RESUME_ID_LOADER_TAG: personal_info_from_resume_id_loader,  # noqa E501
     EDUCATION_FROM_RESUME_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader, ResumesLogic.get_educations
+        resources_from_ids_loader, ResumesLogic.get_educations
     ),
     EXPERIENCE_FROM_RESUME_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader, ResumesLogic.get_experiences
+        resources_from_ids_loader, ResumesLogic.get_experiences
     ),
     SKILL_FROM_RESUME_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader, ResumesLogic.get_skills
+        resources_from_ids_loader, ResumesLogic.get_skills
     ),
     HOBBY_FROM_RESUME_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader,
+        resources_from_ids_loader,
         partial(
             ResumesLogic.get_many_text_only, tag=TextOnlyEnumType.resume_hobby
         ),  # noqa E501
         from_id_attr_name="owner_id",
     ),
     ACHIEVEMENT_FROM_EDUCATION_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader,
+        resources_from_ids_loader,
         partial(
             ResumesLogic.get_many_text_only,
             tag=TextOnlyEnumType.education_achievement,  # noqa E501
@@ -175,7 +175,7 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         from_id_attr_name="owner_id",
     ),
     ACHIEVEMENT_FROM_EXPERIENCE_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader,
+        resources_from_ids_loader,
         partial(
             ResumesLogic.get_many_text_only,
             tag=TextOnlyEnumType.experience_achievement,  # noqa E501
@@ -183,7 +183,7 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         from_id_attr_name="owner_id",
     ),
     ACHIEVEMENT_FROM_SKILL_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader,
+        resources_from_ids_loader,
         partial(
             ResumesLogic.get_many_text_only,
             tag=TextOnlyEnumType.skill_achievement,  # noqa E501
@@ -191,14 +191,14 @@ TAG_TO_RESOURCES_GETTER_FUNCTION_MAP: Mapping[  # type: ignore[disable_any_expli
         from_id_attr_name="owner_id",
     ),
     SPOKEN_LANGUAGE_FROM_RESUME_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader,
+        resources_from_ids_loader,
         partial(
             ResumesLogic.get_ratables, tag=RatableEnumType.spoken_language,  # noqa E501
         ),
         from_id_attr_name="owner_id",
     ),
     SUPPLEMENTARY_SKILL_FROM_RESUME_ID_LOADER_TAG: partial(
-        resources_from_from_ids_loader,
+        resources_from_ids_loader,
         partial(
             ResumesLogic.get_ratables,
             tag=RatableEnumType.supplementary_skill,  # noqa E501
